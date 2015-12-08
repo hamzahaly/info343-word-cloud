@@ -10,7 +10,6 @@ var GameState = {
 
 var dictionary = ['word', 'echo', 'halo', 'game', 'gun', 'assault', 'hill', 'chief', 'lock', 'spartan', 'thrust', 'slide'];
 var textInput;
-console.log(textInput);
 var deleteKey;
 var deleteKeyTxt;
 var enterKey;
@@ -38,37 +37,28 @@ function create() {
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
-
+    this.enterKeyTxt = game.add.text(20, 80, "Enter is pressed? No");
     this.deleteKeyTxt = game.add.text(20, 20, "Backspace is pressed? No");
 
-    $(document).bind("keydown", function (e) {
-        if (e.keyCode == 8) { //Backspace
-            e.preventDefault();
-            textInput.text = textInput.text.substring(0, textInput.text.length - 1);
-        }
-        if (e.keyCode = 13) { //Enter
-            e.preventDefault();
-            //Do what enter needs to do.
-        }
-    });
-
-    textInput.setText(textInput.text);
 }
 
 function update() {
     if (this.deleteKey.isDown) {
-        this.deleteKeyTxt.text = "Backspace is pressed? Yes"
+        this.deleteKeyTxt.text = "Backspace is pressed? Yes";
+        this.deleteKey.onDown.add(deleteText, this);
     } else {
-        this.deleteKeyTxt.text = "Backspace is pressed? No"
+        this.deleteKeyTxt.text = "Backspace is pressed? No";
     }
     if (this.enterKey.isDown) {
-        this.enterKeyTxt.text = "Enter is pressed? Yes"
+        this.enterKeyTxt.text = "Enter is pressed? Yes";
+        this.enterKey.onDown.add(submitText, this)
     } else {
-        this.enterKeyTxt.text = "Enter is pressed? No"
+        this.enterKeyTxt.text = "Enter is pressed? No";
     }
 }
 
 function keyPress(char) {
+    console.log("here");
     console.log(textInput.text);
     var x = 64;
     var idx;
@@ -84,6 +74,13 @@ function keyPress(char) {
     }
 }
 
+function submitText() {
+    //Logic for determining if the text is in the dictionary
+}
+
+function deleteText() {
+    textInput.text = textInput.text.substring(0, textInput.text.length - 1);
+}
 
 game.state.add('GameState', GameState);
 game.state.start('GameState');
