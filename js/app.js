@@ -111,6 +111,7 @@ function update() {
 
 function keyPress(char) {
     console.log("here");
+    console.log("HELLO");
     console.log(textInput.text);
     var x = 64;
     var idx;
