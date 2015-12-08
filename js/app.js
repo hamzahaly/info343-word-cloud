@@ -8,7 +8,7 @@ var GameState = {
     preload: preload, create: create, update: update
 };
 
-var dictionary = ['word', 'echo', 'halo', 'game', 'gun', 'assault', 'hill', 'chief', 'lock', 'spartan', 'thrust', 'slide'];
+var dictionary = ['word', 'echo', 'halo', 'game', 'gun', 'assault', 'hill', 'chief', 'lock', 'spartan', 'thrust', 'slide', 'fuck'];
 var textInput;
 var deleteKey;
 var deleteKeyTxt;
@@ -56,7 +56,7 @@ function create() {
     background = game.add.tileSprite(0, 0, 1000, 600, "background");
     game.renderer.renderSession.roundPixels = true;
 
-    //Build a makeshift textbox
+    //Build a makeshift text box
     textboxline1 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 200);
     textboxline2 = new Phaser.Line(game.world.centerX, game.world.centerY + 250, game.world.centerX + 300, game.world.centerY + 250);
     textboxline3 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX, game.world.centerY + 250);
@@ -72,7 +72,9 @@ function create() {
     console.log(textInput.text);
     textInput.setText(textInput.text);
 
-    startTyping = game.add.text(game.world.centerX - 175, 500, "Start Typing!")
+    //Text box UI stuff
+    startTyping = game.add.text(game.world.centerX - 175, 500, "Start Typing!");
+
     //Read in Backspace and Enter keys
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
@@ -133,6 +135,9 @@ function keyPress(char) {
 //Hitting the enter key submits the text to me checked against the dictionary
 function submitText() {
     //Logic for determining if the text is in the dictionary
+    //if input matches a word in the dictionary, clear the text and update a score and remove letters from the screen
+    //else make it red or have an x appear and don't clear the text or update score and leave letters on the screen
+
 }
 
 //Delete a letter from the text being typed.
