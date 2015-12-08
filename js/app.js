@@ -2,23 +2,7 @@
 // An HTML5 video game that tests the user's vocabulary and typing ability.
 
 
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
-Drop = function(game, char) {
-
-    var x = getRandomInt(0, game.world.width);
-    var y = 0;
-    Phaser.Sprite.call(this, game, x, y, char);
-    this.game.physics.arcade.enableBody(this);
-
-};
-
-Drop.prototype = Object.create(Phaser.Sprite.prototype);
-Drop.prototype.constructor = Drop;
-
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
+var game = new Phaser.Game(1000, 600, Phaser.AUTO, '');
 
 var GameState = {
     preload: preload, create: create, update: update
@@ -30,9 +14,14 @@ var deleteKey;
 var deleteKeyTxt;
 var enterKey;
 var enterKeyTxt;
+var textboxline1;
+var textboxline2;
+var textboxline3;
+var textboxline4;
+var startTyping;
 
+//Preload all of the images so they appear on the screen when the game starts.
 function preload() {
-    game.load.image('background', 'assets/img/background.jpg')
     game.load.image('background', 'assets/img/background.jpg');
     game.load.image('a', 'assets/img/drops/a.png');
     game.load.image('b', 'assets/img/drops/b.png');
@@ -63,38 +52,53 @@ function preload() {
 }
 
 function create() {
+    //Add background for the game.
     background = game.add.tileSprite(0, 0, 1000, 600, "background");
-    textInput = game.make.bitmapData(800, 600);
-    textInput.context.font = '18px Arial';
-    textInput.context.fillStyle = '#FFF';
-    textInput.addToWorld();
+    game.renderer.renderSession.roundPixels = true;
 
+    //Build a makeshift textbox
+    textboxline1 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 200);
+    textboxline2 = new Phaser.Line(game.world.centerX, game.world.centerY + 250, game.world.centerX + 300, game.world.centerY + 250);
+    textboxline3 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX, game.world.centerY + 250);
+    textboxline4 = new Phaser.Line(game.world.centerX + 300, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 250);
+
+    //Retrieve keyboard inputs from the user.
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
-    textInput = game.add.text(game.world.centerX, game.world.centerY, "", {
-        font: "24px Arial",
+    textInput = game.add.text(game.world.centerX + 5, 505, "", {
+        font: "36px Arial",
         fill: "#000",
         align: "center"
     });
+    console.log(textInput.text);
     textInput.setText(textInput.text);
 
+    startTyping = game.add.text(game.world.centerX - 175, 500, "Start Typing!")
+    //Read in Backspace and Enter keys
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
     this.enterKeyTxt = game.add.text(20, 80, "Enter is pressed? No");
     this.deleteKeyTxt = game.add.text(20, 20, "Backspace is pressed? No");
 
+    //Add physics to the game.
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 10;
 
-    background = game.add.tileSprite(0, 0, 1000, 600, "background");
 
     var word = 'fuck';
-    for (var i=0; i<word.length; i++) {
+    for (var i = 0; i < word.length; i++) {
         game.add.existing(new Drop(game, word.charAt(i)));
     }
 }
 
 function update() {
+    game.debug.geom(textboxline1, '#000');
+    game.debug.geom(textboxline2, '#000');
+    game.debug.geom(textboxline3, '#000');
+    game.debug.geom(textboxline4, '#000');
+
+
+    //Delete a letter from the word being typed.
     if (this.deleteKey.isDown) {
         this.deleteKeyTxt.text = "Backspace is pressed? Yes";
         this.deleteKey.onDown.add(deleteText, this);
@@ -109,15 +113,14 @@ function update() {
     }
 }
 
+//Concatenate key presses into a string
 function keyPress(char) {
-    console.log("here");
-    console.log("HELLO");
-    console.log(textInput.text);
     var x = 64;
     var idx;
     console.log(char);
     textInput.text += char;
     console.log(textInput.text);
+    textInput.setText(textInput.text);
     for (idx = 0; idx < dictionary.length; idx++) {
       if (textInput.text === dictionary[idx]) {
           console.log('Word Completed');
@@ -127,13 +130,33 @@ function keyPress(char) {
     }
 }
 
+//Hitting the enter key submits the text to me checked against the dictionary
 function submitText() {
     //Logic for determining if the text is in the dictionary
 }
 
+//Delete a letter from the text being typed.
 function deleteText() {
     textInput.text = textInput.text.substring(0, textInput.text.length - 1);
+    console.log(textInput.text);
 }
+
+//Get a random number to add RNG to the game.
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+Drop = function(game, char) {
+
+    var x = getRandomInt(0, game.world.width);
+    var y = 0;
+    Phaser.Sprite.call(this, game, x, y, char);
+    this.game.physics.arcade.enableBody(this);
+
+};
+
+Drop.prototype = Object.create(Phaser.Sprite.prototype);
+Drop.prototype.constructor = Drop;
 
 game.state.add('GameState', GameState);
 game.state.start('GameState');
