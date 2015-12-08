@@ -13,7 +13,7 @@ Drop = function(game, char) {
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
 
-}
+};
 
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
 Drop.prototype.constructor = Drop;
@@ -137,13 +137,3 @@ function deleteText() {
 game.state.add('GameState', GameState);
 game.state.start('GameState');
 
-
-
-
-<<<<<<< HEAD
-=======
-}
-
-game.state.add('GameState', GameState);
-game.state.start('GameState');
->>>>>>> 085bbd61b94a3d6f1c41ae4875625c4856d50e76
