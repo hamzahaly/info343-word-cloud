@@ -193,13 +193,11 @@ function onScreen(word) {
 }
 
 Drop = function(game, char) {
-
     var character = char;
     var x = getRandomInt(0, game.world.width);
     var y = 0;
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
-
 };
 
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
@@ -207,5 +205,7 @@ Drop.prototype.constructor = Drop;
 
 game.state.add('GameState', GameState);
 game.state.start('GameState');
+
+
 
 
