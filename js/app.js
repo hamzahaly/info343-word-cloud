@@ -80,12 +80,15 @@ function create() {
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
 
+    //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 10;
 
-
+    //creates the drops group that Phaser implements
     drops = game.add.group();
+    //example word for debugging
     var word = 'ffffffuck';
+    //create drops
     createDrops(word);
 
     console.log(dropMap);
@@ -99,7 +102,6 @@ function create() {
                             
     makeButton('start', 300, 300);
     makeButton('leaderboard', 300, 400);
-    //makeButton('replay', 300, 300);
                             
     playBackground();
 }
@@ -164,13 +166,16 @@ function click(button) {
 	buttonClickFX.play(button.name, 0);
 }
 
+//Gets some random int
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-
+// map for letters and their corresponding drops currently on screen
+// Map where keys are letters and value are arrays of dropObjects
 var dropMap = new Map();
 
+// Creates drops from a given word
 function createDrops(word) {
     for (var i = 0; i < word.length; i++) {
         var character = word.charAt(i);
@@ -178,21 +183,17 @@ function createDrops(word) {
         game.add.existing(newDrop);
         drops.add(newDrop);
         if (dropMap.has(character)) {
-            console.log('in here');
             dropMap.get(character).push(newDrop);
         } else {
-
-            console.log('olo');
             dropMap.set(character, new Array());
-            console.log('after new array set');
             dropMap.get(character).push(newDrop);
-            console.log('end');
         }
     }
 }
 
+//return if the given word is onscreen
 function checkIfOnScreen(word) {
-    var result = true;
+    var result = false;
     for (var i = 0; i < word.length; i++) {
         var char = word.charAt[i];
         if (dropMap.has(char)) {
@@ -207,8 +208,17 @@ function checkIfOnScreen(word) {
     return true;
 }
 
+function destroyDrops(word) {
+
+    var wordArray = word.split('');
+    for (var i = 0; i < wordArray.length; i++) {
+        var char = wordArray[i];
+        dropMap.get(char).shift().destroy();
+    }
+}
+
+//Prototype/template for the drop object
 Drop = function(game, char) {
-    var character = char;
     var x = getRandomInt(0, game.world.width);
     var y = 0;
     Phaser.Sprite.call(this, game, x, y, char);
