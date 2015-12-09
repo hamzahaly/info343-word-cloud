@@ -1,25 +1,7 @@
 // Project Word Cloud by Kevin Yan, Peter Lu, Hai Nguyen, Hamzah Aly
 // An HTML5 video game that tests the user's vocabulary and typing ability.
 
-
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
-Drop = function(game, char) {
-
-    var x = getRandomInt(0, game.world.width);
-    var y = 0;
-    Phaser.Sprite.call(this, game, x, y, char);
-    this.game.physics.arcade.enableBody(this);
-
-};
-
-Drop.prototype = Object.create(Phaser.Sprite.prototype);
-Drop.prototype.constructor = Drop;
-
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
-
 var GameState = {
     preload: preload, create: create, update: update
 };
@@ -30,9 +12,10 @@ var deleteKey;
 var deleteKeyTxt;
 var enterKey;
 var enterKeyTxt;
+var drops;
 
 function preload() {
-    game.load.image('background', 'assets/img/background.jpg')
+    game.load.image('background', 'assets/img/background.jpg');
     game.load.image('background', 'assets/img/background.jpg');
     game.load.image('a', 'assets/img/drops/a.png');
     game.load.image('b', 'assets/img/drops/b.png');
@@ -93,13 +76,13 @@ function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 10;
 
-    background = game.add.tileSprite(0, 0, 1000, 600, "background");
 
-    var word = 'fuck';
-    for (var i=0; i<word.length; i++) {
-        game.add.existing(new Drop(game, word.charAt(i)));
-    }
-    
+    drops = game.add.group();
+    var word = 'ffffffuck';
+    createDrops(word);
+
+    console.log(dropMap);
+
     keyPressFX = game.add.audio('keyPress');
     buttonClickFX = game.add.audio('buttonClick');
     
@@ -162,7 +145,6 @@ function playBackground() {
 }
 
 function makeButton(name, x, y) {
-
     var button = game.add.button(x, y, name, click, this, 0, 1, 2);
     button.name = name;
     button.scale.set(0.2, 0.2);
@@ -174,6 +156,57 @@ function click(button) {
 
 	buttonClickFX.play(button.name, 0);
 }
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+
+var dropMap = new Map();
+
+function createDrops(word) {
+    for (var i = 0; i < word.length; i++) {
+        var character = word.charAt(i);
+        var newDrop = new Drop(game, character);
+        game.add.existing(newDrop);
+        drops.add(newDrop);
+        if (dropMap.has(character)) {
+            console.log('in here');
+            dropMap.get(character).push(newDrop);
+        } else {
+
+            console.log('olo');
+            dropMap.set(character, new Array());
+            console.log('after new array set');
+            dropMap.get(character).push(newDrop);
+            console.log('end');
+        }
+    }
+}
+
+function onScreen(word) {
+    for (var i = 0; i < word.length; i++) {
+        var char = word.charAt[i];
+        if (dropMap.has(char)) {
+            return !(dropMap.get(char).length === 0);
+        } else {
+            return false;
+        }
+    }
+}
+
+Drop = function(game, char) {
+
+    var character = char;
+    var x = getRandomInt(0, game.world.width);
+    var y = 0;
+    Phaser.Sprite.call(this, game, x, y, char);
+    this.game.physics.arcade.enableBody(this);
+
+};
+
+Drop.prototype = Object.create(Phaser.Sprite.prototype);
+Drop.prototype.constructor = Drop;
 
 game.state.add('GameState', GameState);
 game.state.start('GameState');
