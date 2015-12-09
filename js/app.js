@@ -79,8 +79,6 @@ function create() {
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
-    this.enterKeyTxt = game.add.text(20, 80, "Enter is pressed? No");
-    this.deleteKeyTxt = game.add.text(20, 20, "Backspace is pressed? No");
 
     //Add physics to the game.
     game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -102,17 +100,13 @@ function update() {
 
     //Delete a letter from the word being typed.
     if (this.deleteKey.isDown) {
-        this.deleteKeyTxt.text = "Backspace is pressed? Yes";
         this.deleteKey.onDown.add(deleteText, this);
-    } else {
-        this.deleteKeyTxt.text = "Backspace is pressed? No";
     }
+
     if (this.enterKey.isDown) {
-        this.enterKeyTxt.text = "Enter is pressed? Yes";
         this.enterKey.onDown.add(submitText, this)
-    } else {
-        this.enterKeyTxt.text = "Enter is pressed? No";
     }
+
 }
 
 //Concatenate key presses into a string
@@ -139,6 +133,7 @@ function submitText() {
     //else make it red or have an x appear and don't clear the text or update score and leave letters on the screen
 
 }
+
 
 //Delete a letter from the text being typed.
 function deleteText() {
