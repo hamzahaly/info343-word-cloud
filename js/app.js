@@ -191,15 +191,20 @@ function createDrops(word) {
     }
 }
 
-function onScreen(word) {
+function checkIfOnScreen(word) {
+    var result = true;
     for (var i = 0; i < word.length; i++) {
         var char = word.charAt[i];
         if (dropMap.has(char)) {
-            return !(dropMap.get(char).length === 0);
+            result = !(dropMap.get(char).length === 0);
+            if (result === false) {
+                return false;
+            }
         } else {
             return false;
         }
     }
+    return true;
 }
 
 Drop = function(game, char) {
