@@ -16,7 +16,6 @@ var drops;
 
 function preload() {
     game.load.image('background', 'assets/img/background.jpg');
-    game.load.image('background', 'assets/img/background.jpg');
     game.load.image('a', 'assets/img/drops/a.png');
     game.load.image('b', 'assets/img/drops/b.png');
     game.load.image('c', 'assets/img/drops/c.png');
@@ -43,7 +42,6 @@ function preload() {
     game.load.image('x', 'assets/img/drops/x.png');
     game.load.image('y', 'assets/img/drops/y.png');
     game.load.image('z', 'assets/img/drops/z.png');
-    game.load.image('background', 'assets/img/background.jpg');
     game.load.image('start', 'assets/img/start.png');
     game.load.image('leaderboard', 'assets/img/leaderboard.png');
     game.load.image('replay', 'assets/img/replay.png');
@@ -153,7 +151,6 @@ function makeButton(name, x, y) {
 }
 
 function click(button) {
-
 	buttonClickFX.play(button.name, 0);
 }
 
