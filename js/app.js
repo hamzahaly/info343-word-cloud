@@ -1,7 +1,7 @@
 // Project Word Cloud by Kevin Yan, Peter Lu, Hai Nguyen, Hamzah Aly
 // An HTML5 video game that tests the user's vocabulary and typing ability.
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
+var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
 var GameState = {
     preload: preload, create: create, update: update
 };
@@ -9,13 +9,16 @@ var GameState = {
 var dictionary = ['word', 'echo', 'halo', 'game', 'gun', 'assault', 'hill', 'chief', 'lock', 'spartan', 'thrust', 'slide'];
 var textInput;
 var deleteKey;
-var deleteKeyTxt;
 var enterKey;
-var enterKeyTxt;
 var drops;
+var textboxline1;
+var textboxline2;
+var textboxline3;
+var textboxline4;
+var startTyping;
 
 function preload() {
-    game.load.image('background', 'assets/img/background.jpg');
+    game.load.image('background', 'assets/img/background.png');
     game.load.image('a', 'assets/img/drops/a.png');
     game.load.image('b', 'assets/img/drops/b.png');
     game.load.image('c', 'assets/img/drops/c.png');
@@ -51,25 +54,31 @@ function preload() {
 }
 
 function create() {
-    background = game.add.tileSprite(0, 0, 1000, 600, "background");
+    background = game.add.tileSprite(0, 0, 650, 700, "background");
     textInput = game.make.bitmapData(800, 600);
     textInput.context.font = '18px Arial';
     textInput.context.fillStyle = '#FFF';
     textInput.addToWorld();
 
+    //Build a makeshift text box
+    textboxline1 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 200);
+    textboxline2 = new Phaser.Line(game.world.centerX, game.world.centerY + 250, game.world.centerX + 300, game.world.centerY + 250);
+    textboxline3 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX, game.world.centerY + 250);
+    textboxline4 = new Phaser.Line(game.world.centerX + 300, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 250);
+
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
-    textInput = game.add.text(game.world.centerX, game.world.centerY, "", {
-        font: "24px Arial",
+    textInput = game.add.text(game.world.centerX + 5, 560, "", {
+        font: "28px Arial",
         fill: "#000",
         align: "center"
     });
     textInput.setText(textInput.text);
 
+    startTyping = game.add.text(game.world.centerX - 175, 560, "Start Typing!");
+
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
-    this.enterKeyTxt = game.add.text(20, 80, "Enter is pressed? No");
-    this.deleteKeyTxt = game.add.text(20, 20, "Backspace is pressed? No");
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 10;
@@ -96,17 +105,18 @@ function create() {
 }
 
 function update() {
+    game.debug.geom(textboxline1, '#000');
+    game.debug.geom(textboxline2, '#000');
+    game.debug.geom(textboxline3, '#000');
+    game.debug.geom(textboxline4, '#000');
+
+    //Delete a letter from the word being typed.
     if (this.deleteKey.isDown) {
-        this.deleteKeyTxt.text = "Backspace is pressed? Yes";
         this.deleteKey.onDown.add(deleteText, this);
-    } else {
-        this.deleteKeyTxt.text = "Backspace is pressed? No";
     }
+
     if (this.enterKey.isDown) {
-        this.enterKeyTxt.text = "Enter is pressed? Yes";
         this.enterKey.onDown.add(submitText, this)
-    } else {
-        this.enterKeyTxt.text = "Enter is pressed? No";
     }
 }
 
@@ -205,6 +215,9 @@ Drop.prototype.constructor = Drop;
 
 game.state.add('GameState', GameState);
 game.state.start('GameState');
+
+
+
 
 
 
