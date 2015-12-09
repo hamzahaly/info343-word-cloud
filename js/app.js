@@ -6,6 +6,7 @@ var GameState = {
     preload: preload, create: create, update: update
 };
 
+var dictionary;
 var textInput;
 var deleteKey;
 var enterKey;
@@ -56,7 +57,7 @@ function preload() {
 }
 
 function create() {
-	var dictionary = this.game.cache.getText('dictionary').split(' ');
+    dictionary = this.game.cache.getText('dictionary').split(' ');
     background = game.add.tileSprite(0, 0, 1000, 600, "background");
     var word = "test" // whatever word the user has typed into text box
  
