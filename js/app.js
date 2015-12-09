@@ -57,15 +57,8 @@ function preload() {
 }
 
 function create() {
-    dictionary = this.game.cache.getText('dictionary').split(' ');
+    dictionary = this.game.cache.getText('dictionary').split(/\s+/);
     background = game.add.tileSprite(0, 0, 1000, 600, "background");
-    var word = "test" // whatever word the user has typed into text box
- 
-	if(this.game.cache.getText('dictionary').indexOf(' ' + word + ' ') > -1){
-	    alert("exists"); // clear text box, remove the used letters, update score
-	} else {
-	    alert("does not exist"); // clear text box, show error message
-	}
 
     background = game.add.tileSprite(0, 0, 650, 700, "background");
     textInput = game.make.bitmapData(800, 600);
@@ -152,26 +145,17 @@ function keyPress(char) {
     console.log(char);
     textInput.text += char;
     console.log(textInput.text);
-    for (idx = 0; idx < dictionary.length; idx++) {
-      if (textInput.text === dictionary[idx]) {
-          console.log('Word Completed');
-      } else {
-          console.log('Word Incomplete');
-      }
-    }
 }
 
 function submitText() {
     if (checkIfOnScreen(textInput.text)) {
         //remove letters
-        dictionary.forEach(function(word) {
-            console.log(textInput.text);
-            if (textInput.text === word) {
-                console.log(word);
-                console.log('correct!');
-                score += word.length* 10;
-            }
-        });
+        console.log(textInput.text);
+        if (dictionary.indexOf(textInput.text) > -1) {
+            console.log("correct mofugga");
+            score += textInput.text.length * 10;
+            destroyDrops(textInput.text)
+        }
         console.log("not in dictionary");
     } else {
         console.log('false!')
