@@ -6,7 +6,7 @@ var GameState = {
     preload: preload, create: create, update: update
 };
 
-var dictionary = ['word', 'echo', 'halo', 'game', 'gun', 'assault', 'hill', 'chief', 'lock', 'spartan', 'thrust', 'slide'];
+var dictionary = ['word', 'echo', 'halo', 'game', 'gun', 'assault', 'hill', 'chief', 'lock', 'spartan', 'thrust', 'slide', 'fuck'];
 var textInput;
 var deleteKey;
 var enterKey;
@@ -16,6 +16,8 @@ var textboxline2;
 var textboxline3;
 var textboxline4;
 var startTyping;
+var scoreText;
+var score = 0;
 
 function preload() {
     game.load.image('background', 'assets/img/background.png');
@@ -75,6 +77,12 @@ function create() {
     textInput.setText(textInput.text);
 
     startTyping = game.add.text(game.world.centerX - 175, 560, "Start Typing!");
+    console.log(score);
+    scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 300, "score: " + score, {
+        font: '28px Arial',
+        fill: '#000',
+        align: 'center'
+    });
 
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
@@ -118,12 +126,14 @@ function update() {
     if (this.enterKey.isDown) {
         this.enterKey.onDown.add(submitText, this)
     }
+
+    scoreText.setText("Score: " + score);
 }
 
 function keyPress(char) {
-    console.log("here");
-    console.log("HELLO");
-    console.log(textInput.text);
+    //console.log("here");
+    //console.log("HELLO");
+    //console.log(textInput.text);
     var x = 64;
     var idx;
     console.log(char);
@@ -139,7 +149,20 @@ function keyPress(char) {
 }
 
 function submitText() {
-    //Logic for determining if the text is in the dictionary
+    if (checkIfOnScreen(textInput.text)) {
+        //remove letters
+        dictionary.forEach(function(word) {
+            console.log(textInput.text);
+            if (textInput.text === word) {
+                console.log(word);
+                console.log('correct!');
+                score += word.length* 10;
+            }
+        });
+        console.log("not in dictionary");
+    } else {
+        console.log('false!')
+    }
 }
 
 function deleteText() {
@@ -178,23 +201,20 @@ function createDrops(word) {
         game.add.existing(newDrop);
         drops.add(newDrop);
         if (dropMap.has(character)) {
-            console.log('in here');
             dropMap.get(character).push(newDrop);
         } else {
 
-            console.log('olo');
             dropMap.set(character, new Array());
-            console.log('after new array set');
             dropMap.get(character).push(newDrop);
-            console.log('end');
         }
     }
 }
 
 function checkIfOnScreen(word) {
-    var result = true;
-    for (var i = 0; i < word.length; i++) {
-        var char = word.charAt[i];
+    var result ;
+    var wordArray = word.split('');
+    for (var i = 0; i < wordArray.length; i++) {
+        var char = wordArray[i];
         if (dropMap.has(char)) {
             result = !(dropMap.get(char).length === 0);
             if (result === false) {
