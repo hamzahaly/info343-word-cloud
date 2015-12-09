@@ -6,8 +6,45 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
+
+var dropMap = new Map();
+
+function createDrops(word) {
+    for (var i = 0; i < word.length; i++) {
+        var character = word.charAt(i);
+        var newDrop = new Drop(game, character);
+        game.add.existing(newDrop);
+        drops.add(newDrop);
+        if (dropMap.has(character)) {
+            console.log('in here');
+            dropMap.get(character).push(newDrop);
+        } else {
+
+            console.log('olo');
+            dropMap.set(character, new Array());
+            console.log('after new array set');
+            dropMap.get(character).push(newDrop);
+            console.log('end');
+        }
+    }
+}
+
+function onScreen(word) {
+    for (var i = 0; i < word.length; i++) {
+        var char = word.charAt[i];
+        if (dropMap.has(char)) {
+            return !(dropMap.get(char).length === 0);
+        } else {
+            return false;
+        }
+    }
+}
+
+
+
 Drop = function(game, char) {
 
+    var character = char;
     var x = getRandomInt(0, game.world.width);
     var y = 0;
     Phaser.Sprite.call(this, game, x, y, char);
@@ -19,10 +56,11 @@ Drop.prototype = Object.create(Phaser.Sprite.prototype);
 Drop.prototype.constructor = Drop;
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
-
 var GameState = {
     preload: preload, create: create, update: update
 };
+
+var drops;
 
 var dictionary = ['word', 'echo', 'halo', 'game', 'gun', 'assault', 'hill', 'chief', 'lock', 'spartan', 'thrust', 'slide'];
 var textInput;
@@ -32,7 +70,7 @@ var enterKey;
 var enterKeyTxt;
 
 function preload() {
-    game.load.image('background', 'assets/img/background.jpg')
+    game.load.image('background', 'assets/img/background.jpg');
     game.load.image('background', 'assets/img/background.jpg');
     game.load.image('a', 'assets/img/drops/a.png');
     game.load.image('b', 'assets/img/drops/b.png');
@@ -86,12 +124,13 @@ function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 10;
 
-    background = game.add.tileSprite(0, 0, 1000, 600, "background");
 
-    var word = 'fuck';
-    for (var i=0; i<word.length; i++) {
-        game.add.existing(new Drop(game, word.charAt(i)));
-    }
+    drops = game.add.group();
+    var word = 'ffffffuck';
+    createDrops(word);
+
+    console.log(dropMap);
+
 }
 
 function update() {
