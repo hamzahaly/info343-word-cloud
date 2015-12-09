@@ -60,6 +60,13 @@ function preload() {
     game.load.image('x', 'assets/img/drops/x.png');
     game.load.image('y', 'assets/img/drops/y.png');
     game.load.image('z', 'assets/img/drops/z.png');
+    game.load.image('background', 'assets/img/background.jpg');
+    game.load.image('start', 'assets/img/start.png');
+    game.load.image('leaderboard', 'assets/img/leaderboard.png');
+    game.load.image('replay', 'assets/img/replay.png');
+    game.load.audio('theme', 'assets/audio/theme.mp3');
+    game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
+    game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
 }
 
 function create() {
@@ -92,6 +99,19 @@ function create() {
     for (var i=0; i<word.length; i++) {
         game.add.existing(new Drop(game, word.charAt(i)));
     }
+    
+    keyPressFX = game.add.audio('keyPress');
+    buttonClickFX = game.add.audio('buttonClick');
+    
+    buttonClickFX.addMarker('start', 0, 5);
+    buttonClickFX.addMarker('leaderboard', 0, 5);
+    buttonClickFX.addMarker('replay', 0, 5);
+                            
+    makeButton('start', 300, 300);
+    makeButton('leaderboard', 300, 400);
+    //makeButton('replay', 300, 300);
+                            
+    playBackground();
 }
 
 function update() {
@@ -135,6 +155,27 @@ function deleteText() {
     textInput.text = textInput.text.substring(0, textInput.text.length - 1);
 }
 
+function playBackground() {
+    music = game.add.audio('theme');
+    music.autoplay = true;
+    music.play("", 0, 1, true);
+}
+
+function makeButton(name, x, y) {
+
+    var button = game.add.button(x, y, name, click, this, 0, 1, 2);
+    button.name = name;
+    button.scale.set(0.2, 0.2);
+    button.smoothed = false;
+
+}
+
+function click(button) {
+
+	buttonClickFX.play(button.name, 0);
+}
+
 game.state.add('GameState', GameState);
 game.state.start('GameState');
+
 
