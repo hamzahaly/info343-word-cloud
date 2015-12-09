@@ -94,14 +94,14 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 10;
+    game.physics.arcade.gravity.y = 2;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
     //example word for debugging
-    var word = 'ffffffuck';
-    //create drops
-    createDrops(word);
+    //var word = 'ffffffuck';
+    //createDrops(word);
+    createDrops();
 
     console.log(dropMap);
 
@@ -155,6 +155,7 @@ function submitText() {
             console.log("correct mofugga");
             score += textInput.text.length * 10;
             destroyDrops(textInput.text)
+            textInput.setText("");
         }
         console.log("not in dictionary");
     } else {
@@ -194,19 +195,54 @@ function getRandomInt(min, max) {
 var dropMap = new Map();
 
 // Creates drops from a given word
-function createDrops(word) {
-    for (var i = 0; i < word.length; i++) {
-        var character = word.charAt(i);
-        var newDrop = new Drop(game, character);
-        game.add.existing(newDrop);
-        drops.add(newDrop);
-        if (dropMap.has(character)) {
-            dropMap.get(character).push(newDrop);
-        } else {
-            dropMap.set(character, new Array());
-            dropMap.get(character).push(newDrop);
+
+//old create drop
+//function createDrops(word) {
+//    for (var i = 0; i < word.length; i++) {
+//        var character = word.charAt(i);
+//        var newDrop = new Drop(game, character);
+//        game.add.existing(newDrop);
+//        drops.add(newDrop);
+//        if (dropMap.has(character)) {
+//            dropMap.get(character).push(newDrop);
+//        } else {
+//            dropMap.set(character, new Array());
+//            dropMap.get(character).push(newDrop);
+//        }
+//    }
+//}
+
+
+function createDrops() {
+    //var word = 'fuck';
+    var word = dictionary[getRandomInt(0, dictionary.length)];
+    console.log(word);
+    var chars = word.split('');
+    console.log(chars);
+    var uniqueNums = [];
+    console.log('out');
+    while (uniqueNums.length < chars.length) {
+        console.log('in');
+        // pick a random index of the char array
+        var random = getRandomInt(0, chars.length);
+        // checks that the index hasn't been called already, making sure that each letter
+        // is only called once
+        if (uniqueNums.indexOf(random) == -1) {
+            uniqueNums.push(random);
+
+            var newDrop = new Drop(game, chars[random]);
+            drops.add(newDrop);
+            if (dropMap.has(chars[random])) {
+                dropMap.get(chars[random]).push(newDrop);
+            } else {
+                dropMap.set(chars[random], new Array());
+                dropMap.get(chars[random]).push(newDrop);
+            }
         }
+        // else, the index isnt unique, the letter has already been inserted, and nothing
+        // happens
     }
+
 }
 
 //return if the given word is onscreen
