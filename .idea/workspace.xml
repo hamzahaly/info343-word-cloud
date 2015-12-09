@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bd2e1070-6c25-4229-9c67-1a6dc98a09bd" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/img/button.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/audio/buttonClick.mp3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/audio/correct.wav" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/audio/keyPress.mp3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/img/leaderboard.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/img/replay.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/img/start.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/audio/theme.mp3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/assets/audio/wrong.mp3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/app.js" afterPath="$PROJECT_DIR$/js/app.js" />
-    </list>
+    <list default="true" id="bd2e1070-6c25-4229-9c67-1a6dc98a09bd" name="Default" comment="" />
     <ignored path="info343-word-cloud.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
