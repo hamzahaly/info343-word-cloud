@@ -211,7 +211,7 @@ function createDrops(word) {
 }
 
 function checkIfOnScreen(word) {
-    var result ;
+    var result;
     var wordArray = word.split('');
     for (var i = 0; i < wordArray.length; i++) {
         var char = wordArray[i];
