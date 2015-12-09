@@ -6,7 +6,7 @@ var GameState = {
     preload: preload, create: create, update: update
 };
 
-var dictionary = ['word', 'echo', 'halo', 'game', 'gun', 'assault', 'hill', 'chief', 'lock', 'spartan', 'thrust', 'slide', 'fuck'];
+var dictionary;
 var textInput;
 var deleteKey;
 var enterKey;
@@ -20,6 +20,7 @@ var scoreText;
 var score = 0;
 
 function preload() {
+	game.load.text('dictionary', 'assets/dictionary.txt');
     game.load.image('background', 'assets/img/background.png');
     game.load.image('a', 'assets/img/drops/a.png');
     game.load.image('b', 'assets/img/drops/b.png');
@@ -56,6 +57,16 @@ function preload() {
 }
 
 function create() {
+    dictionary = this.game.cache.getText('dictionary').split(' ');
+    background = game.add.tileSprite(0, 0, 1000, 600, "background");
+    var word = "test" // whatever word the user has typed into text box
+ 
+	if(this.game.cache.getText('dictionary').indexOf(' ' + word + ' ') > -1){
+	    alert("exists"); // clear text box, remove the used letters, update score
+	} else {
+	    alert("does not exist"); // clear text box, show error message
+	}
+
     background = game.add.tileSprite(0, 0, 650, 700, "background");
     textInput = game.make.bitmapData(800, 600);
     textInput.context.font = '18px Arial';
@@ -88,12 +99,15 @@ function create() {
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
 
+    //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 10;
 
-
+    //creates the drops group that Phaser implements
     drops = game.add.group();
+    //example word for debugging
     var word = 'ffffffuck';
+    //create drops
     createDrops(word);
 
     console.log(dropMap);
@@ -107,7 +121,6 @@ function create() {
                             
     makeButton('start', 300, 300);
     makeButton('leaderboard', 300, 400);
-    //makeButton('replay', 300, 300);
                             
     playBackground();
 }
@@ -187,13 +200,16 @@ function click(button) {
 	buttonClickFX.play(button.name, 0);
 }
 
+//Gets some random int
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-
+// map for letters and their corresponding drops currently on screen
+// Map where keys are letters and value are arrays of dropObjects
 var dropMap = new Map();
 
+// Creates drops from a given word
 function createDrops(word) {
     for (var i = 0; i < word.length; i++) {
         var character = word.charAt(i);
@@ -203,13 +219,13 @@ function createDrops(word) {
         if (dropMap.has(character)) {
             dropMap.get(character).push(newDrop);
         } else {
-
             dropMap.set(character, new Array());
             dropMap.get(character).push(newDrop);
         }
     }
 }
 
+//return if the given word is onscreen
 function checkIfOnScreen(word) {
     var result;
     var wordArray = word.split('');
@@ -227,23 +243,48 @@ function checkIfOnScreen(word) {
     return true;
 }
 
+function destroyDrops(word) {
+
+    var wordArray = word.split('');
+    for (var i = 0; i < wordArray.length; i++) {
+        var char = wordArray[i];
+        dropMap.get(char).shift().destroy();
+    }
+}
+
+//Prototype/template for the drop object
 Drop = function(game, char) {
-    var character = char;
     var x = getRandomInt(0, game.world.width);
     var y = 0;
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
 };
 
+function addLetters() {
+	// takes random word from dictionary
+	var word = dictionary[getRandomInt(0, dictionary.length)];
+	// splits word into individual letters, a char array
+	var chars = word.split('');
+	// sets up the randomizer by keeping track of which letters have already been inserted
+	var uniqueNums = [];
+	// basically runs until all letters have been inserted because the number
+	// of unique nums should eventually equal the length of the char array
+	while (uniqueNums.length < chars.length) {
+		// pick a random index of the char array
+		var random = getRandomInt(0, chars.length);
+		// checks that the index hasn't been called already, making sure that each letter
+		// is only called once
+		if (uniqueNums.indexOf(random) == -1) {
+			uniqueNums.push(random);
+			Drop(game, chars[random]);
+		}
+		// else, the index isnt unique, the letter has already been inserted, and nothing
+		// happens
+	}
+}
+
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
 Drop.prototype.constructor = Drop;
 
 game.state.add('GameState', GameState);
 game.state.start('GameState');
-
-
-
-
-
-
-
