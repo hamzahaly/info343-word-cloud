@@ -1,12 +1,58 @@
 // Project Word Cloud by Kevin Yan, Peter Lu, Hai Nguyen, Hamzah Aly
 // An HTML5 video game that tests the user's vocabulary and typing ability.
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
+var GameState = {
+    preload: preload, create: create, update: update
+};
+
+var textInput;
+var deleteKey;
+var enterKey;
+var drops;
+var textboxline1;
+var textboxline2;
+var textboxline3;
+var textboxline4;
+var startTyping;
+var scoreText;
+var score = 0;
 
 function preload() {
 	game.load.text('dictionary', 'assets/dictionary.txt');
-    game.load.image('background', 'assets/img/background.jpg');
-
+    game.load.image('background', 'assets/img/background.png');
+    game.load.image('a', 'assets/img/drops/a.png');
+    game.load.image('b', 'assets/img/drops/b.png');
+    game.load.image('c', 'assets/img/drops/c.png');
+    game.load.image('d', 'assets/img/drops/d.png');
+    game.load.image('e', 'assets/img/drops/e.png');
+    game.load.image('f', 'assets/img/drops/f.png');
+    game.load.image('g', 'assets/img/drops/g.png');
+    game.load.image('h', 'assets/img/drops/h.png');
+    game.load.image('i', 'assets/img/drops/i.png');
+    game.load.image('j', 'assets/img/drops/j.png');
+    game.load.image('k', 'assets/img/drops/k.png');
+    game.load.image('l', 'assets/img/drops/l.png');
+    game.load.image('m', 'assets/img/drops/m.png');
+    game.load.image('n', 'assets/img/drops/n.png');
+    game.load.image('o', 'assets/img/drops/o.png');
+    game.load.image('p', 'assets/img/drops/p.png');
+    game.load.image('q', 'assets/img/drops/q.png');
+    game.load.image('r', 'assets/img/drops/r.png');
+    game.load.image('s', 'assets/img/drops/s.png');
+    game.load.image('t', 'assets/img/drops/t.png');
+    game.load.image('u', 'assets/img/drops/u.png');
+    game.load.image('v', 'assets/img/drops/v.png');
+    game.load.image('w', 'assets/img/drops/w.png');
+    game.load.image('x', 'assets/img/drops/x.png');
+    game.load.image('y', 'assets/img/drops/y.png');
+    game.load.image('z', 'assets/img/drops/z.png');
+    game.load.image('start', 'assets/img/start.png');
+    game.load.image('leaderboard', 'assets/img/leaderboard.png');
+    game.load.image('replay', 'assets/img/replay.png');
+    game.load.audio('theme', 'assets/audio/theme.mp3');
+    game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
+    game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
 }
 
 function create() {
@@ -19,11 +65,200 @@ function create() {
 	} else {
 	    alert("does not exist"); // clear text box, show error message
 	}
+
+    background = game.add.tileSprite(0, 0, 650, 700, "background");
+    textInput = game.make.bitmapData(800, 600);
+    textInput.context.font = '18px Arial';
+    textInput.context.fillStyle = '#FFF';
+    textInput.addToWorld();
+
+    //Build a makeshift text box
+    textboxline1 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 200);
+    textboxline2 = new Phaser.Line(game.world.centerX, game.world.centerY + 250, game.world.centerX + 300, game.world.centerY + 250);
+    textboxline3 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX, game.world.centerY + 250);
+    textboxline4 = new Phaser.Line(game.world.centerX + 300, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 250);
+
+    game.input.keyboard.addCallbacks(this, null, null, keyPress);
+    textInput = game.add.text(game.world.centerX + 5, 560, "", {
+        font: "28px Arial",
+        fill: "#000",
+        align: "center"
+    });
+    textInput.setText(textInput.text);
+
+    startTyping = game.add.text(game.world.centerX - 175, 560, "Start Typing!");
+    console.log(score);
+    scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 300, "score: " + score, {
+        font: '28px Arial',
+        fill: '#000',
+        align: 'center'
+    });
+
+    this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
+    this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
+
+    //Adds gravity to the drops
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.physics.arcade.gravity.y = 10;
+
+    //creates the drops group that Phaser implements
+    drops = game.add.group();
+    //example word for debugging
+    var word = 'ffffffuck';
+    //create drops
+    createDrops(word);
+
+    console.log(dropMap);
+
+    keyPressFX = game.add.audio('keyPress');
+    buttonClickFX = game.add.audio('buttonClick');
+    
+    buttonClickFX.addMarker('start', 0, 5);
+    buttonClickFX.addMarker('leaderboard', 0, 5);
+    buttonClickFX.addMarker('replay', 0, 5);
+                            
+    makeButton('start', 300, 300);
+    makeButton('leaderboard', 300, 400);
+                            
+    playBackground();
 }
 
 function update() {
-	
+    game.debug.geom(textboxline1, '#000');
+    game.debug.geom(textboxline2, '#000');
+    game.debug.geom(textboxline3, '#000');
+    game.debug.geom(textboxline4, '#000');
+
+    //Delete a letter from the word being typed.
+    if (this.deleteKey.isDown) {
+        this.deleteKey.onDown.add(deleteText, this);
+    }
+
+    if (this.enterKey.isDown) {
+        this.enterKey.onDown.add(submitText, this)
+    }
+
+    scoreText.setText("Score: " + score);
 }
+
+function keyPress(char) {
+    //console.log("here");
+    //console.log("HELLO");
+    //console.log(textInput.text);
+    var x = 64;
+    var idx;
+    console.log(char);
+    textInput.text += char;
+    console.log(textInput.text);
+    for (idx = 0; idx < dictionary.length; idx++) {
+      if (textInput.text === dictionary[idx]) {
+          console.log('Word Completed');
+      } else {
+          console.log('Word Incomplete');
+      }
+    }
+}
+
+function submitText() {
+    if (checkIfOnScreen(textInput.text)) {
+        //remove letters
+        dictionary.forEach(function(word) {
+            console.log(textInput.text);
+            if (textInput.text === word) {
+                console.log(word);
+                console.log('correct!');
+                score += word.length* 10;
+            }
+        });
+        console.log("not in dictionary");
+    } else {
+        console.log('false!')
+    }
+}
+
+function deleteText() {
+    textInput.text = textInput.text.substring(0, textInput.text.length - 1);
+}
+
+function playBackground() {
+    music = game.add.audio('theme');
+    music.autoplay = true;
+    music.play("", 0, 1, true);
+}
+
+function makeButton(name, x, y) {
+    var button = game.add.button(x, y, name, click, this, 0, 1, 2);
+    button.name = name;
+    button.scale.set(0.2, 0.2);
+    button.smoothed = false;
+
+}
+
+function click(button) {
+	buttonClickFX.play(button.name, 0);
+}
+
+//Gets some random int
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+// map for letters and their corresponding drops currently on screen
+// Map where keys are letters and value are arrays of dropObjects
+var dropMap = new Map();
+
+// Creates drops from a given word
+function createDrops(word) {
+    for (var i = 0; i < word.length; i++) {
+        var character = word.charAt(i);
+        var newDrop = new Drop(game, character);
+        game.add.existing(newDrop);
+        drops.add(newDrop);
+        if (dropMap.has(character)) {
+            dropMap.get(character).push(newDrop);
+        } else {
+            dropMap.set(character, new Array());
+            dropMap.get(character).push(newDrop);
+        }
+    }
+}
+
+//return if the given word is onscreen
+function checkIfOnScreen(word) {
+
+    var result;
+    var wordArray = word.split('');
+    for (var i = 0; i < wordArray.length; i++) {
+        var char = wordArray[i];
+        if (dropMap.has(char)) {
+            result = !(dropMap.get(char).length === 0);
+            if (result === false) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+function destroyDrops(word) {
+
+    var wordArray = word.split('');
+    for (var i = 0; i < wordArray.length; i++) {
+        var char = wordArray[i];
+        dropMap.get(char).shift().destroy();
+    }
+}
+
+//Prototype/template for the drop object
+Drop = function(game, char) {
+    var x = getRandomInt(0, game.world.width);
+    var y = 0;
+    Phaser.Sprite.call(this, game, x, y, char);
+    this.game.physics.arcade.enableBody(this);
+};
 
 function addLetters() {
 	// takes random word from dictionary
@@ -47,3 +282,9 @@ function addLetters() {
 		// happens
 	}
 }
+
+Drop.prototype = Object.create(Phaser.Sprite.prototype);
+Drop.prototype.constructor = Drop;
+
+game.state.add('GameState', GameState);
+game.state.start('GameState');
