@@ -2,8 +2,74 @@
 // An HTML5 video game that tests the user's vocabulary and typing ability.
 
 var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
+
+var states = {};
+states.MainMenu = function() {};
+states.MainMenu.prototype = {
+    preload: function() {
+        this.game.load.text('dictionary', 'assets/dictionary.txt');
+        this.game.load.image('background', 'assets/img/background.png');
+        this.game.load.image('a', 'assets/img/drops/a.png');
+        this.game.load.image('b', 'assets/img/drops/b.png');
+        this.game.load.image('c', 'assets/img/drops/c.png');
+        this.game.load.image('d', 'assets/img/drops/d.png');
+        this.game.load.image('e', 'assets/img/drops/e.png');
+        this.game.load.image('f', 'assets/img/drops/f.png');
+        this.game.load.image('g', 'assets/img/drops/g.png');
+        this.game.load.image('h', 'assets/img/drops/h.png');
+        this.game.load.image('i', 'assets/img/drops/i.png');
+        this.game.load.image('j', 'assets/img/drops/j.png');
+        this.game.load.image('k', 'assets/img/drops/k.png');
+        this.game.load.image('l', 'assets/img/drops/l.png');
+        this.game.load.image('m', 'assets/img/drops/m.png');
+        this.game.load.image('n', 'assets/img/drops/n.png');
+        this.game.load.image('o', 'assets/img/drops/o.png');
+        this.game.load.image('p', 'assets/img/drops/p.png');
+        this.game.load.image('q', 'assets/img/drops/q.png');
+        this.game.load.image('r', 'assets/img/drops/r.png');
+        this.game.load.image('s', 'assets/img/drops/s.png');
+        this.game.load.image('t', 'assets/img/drops/t.png');
+        this.game.load.image('u', 'assets/img/drops/u.png');
+        this.game.load.image('v', 'assets/img/drops/v.png');
+        this.game.load.image('w', 'assets/img/drops/w.png');
+        this.game.load.image('x', 'assets/img/drops/x.png');
+        this.game.load.image('y', 'assets/img/drops/y.png');
+        this.game.load.image('z', 'assets/img/drops/z.png');
+        this.game.load.image('start', 'assets/img/start.png');
+        this.game.load.image('leaderboard', 'assets/img/leaderboard.png');
+        this.game.load.image('replay', 'assets/img/replay.png');
+        this.game.load.audio('theme', 'assets/audio/theme.mp3');
+        this.game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
+        this.game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
+        console.log('loaded sprites');
+    },
+    create: function() {
+        background = game.add.tileSprite(0, 0, 650, 700, "background");
+        //Game audio
+        keyPressFX = game.add.audio('keyPress');
+        buttonClickFX = game.add.audio('buttonClick');
+
+        buttonClickFX.addMarker('start', 0, 5);
+        buttonClickFX.addMarker('leaderboard', 0, 5);
+        buttonClickFX.addMarker('replay', 0, 5);
+
+        //var startButton = makeButton('start', 300, 300);
+        var startButton = this.game.add.button(game.world.centerX, game.world.centerY, "start", this.startGame, this);
+        startButton.anchor.setTo(0.5, 0.5);
+        makeButton('leaderboard', 300, 400);
+
+        playBackground();
+
+    },
+    startGame: function() {
+        this.game.state.start('GameState');
+    }
+};
+
+
+
 var GameState = {
-    preload: preload, create: create, update: update
+    create: create, update: update
 };
 
 var dictionary;
@@ -20,42 +86,42 @@ var scoreText;
 var score = 0;
 
 //Preload all assets into the game
-function preload() {
-	game.load.text('dictionary', 'assets/dictionary.txt');
-    game.load.image('background', 'assets/img/background.png');
-    game.load.image('a', 'assets/img/drops/a.png');
-    game.load.image('b', 'assets/img/drops/b.png');
-    game.load.image('c', 'assets/img/drops/c.png');
-    game.load.image('d', 'assets/img/drops/d.png');
-    game.load.image('e', 'assets/img/drops/e.png');
-    game.load.image('f', 'assets/img/drops/f.png');
-    game.load.image('g', 'assets/img/drops/g.png');
-    game.load.image('h', 'assets/img/drops/h.png');
-    game.load.image('i', 'assets/img/drops/i.png');
-    game.load.image('j', 'assets/img/drops/j.png');
-    game.load.image('k', 'assets/img/drops/k.png');
-    game.load.image('l', 'assets/img/drops/l.png');
-    game.load.image('m', 'assets/img/drops/m.png');
-    game.load.image('n', 'assets/img/drops/n.png');
-    game.load.image('o', 'assets/img/drops/o.png');
-    game.load.image('p', 'assets/img/drops/p.png');
-    game.load.image('q', 'assets/img/drops/q.png');
-    game.load.image('r', 'assets/img/drops/r.png');
-    game.load.image('s', 'assets/img/drops/s.png');
-    game.load.image('t', 'assets/img/drops/t.png');
-    game.load.image('u', 'assets/img/drops/u.png');
-    game.load.image('v', 'assets/img/drops/v.png');
-    game.load.image('w', 'assets/img/drops/w.png');
-    game.load.image('x', 'assets/img/drops/x.png');
-    game.load.image('y', 'assets/img/drops/y.png');
-    game.load.image('z', 'assets/img/drops/z.png');
-    game.load.image('start', 'assets/img/start.png');
-    game.load.image('leaderboard', 'assets/img/leaderboard.png');
-    game.load.image('replay', 'assets/img/replay.png');
-    game.load.audio('theme', 'assets/audio/theme.mp3');
-    game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
-    game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
-}
+//function preload() {
+//	game.load.text('dictionary', 'assets/dictionary.txt');
+//    game.load.image('background', 'assets/img/background.png');
+//    game.load.image('a', 'assets/img/drops/a.png');
+//    game.load.image('b', 'assets/img/drops/b.png');
+//    game.load.image('c', 'assets/img/drops/c.png');
+//    game.load.image('d', 'assets/img/drops/d.png');
+//    game.load.image('e', 'assets/img/drops/e.png');
+//    game.load.image('f', 'assets/img/drops/f.png');
+//    game.load.image('g', 'assets/img/drops/g.png');
+//    game.load.image('h', 'assets/img/drops/h.png');
+//    game.load.image('i', 'assets/img/drops/i.png');
+//    game.load.image('j', 'assets/img/drops/j.png');
+//    game.load.image('k', 'assets/img/drops/k.png');
+//    game.load.image('l', 'assets/img/drops/l.png');
+//    game.load.image('m', 'assets/img/drops/m.png');
+//    game.load.image('n', 'assets/img/drops/n.png');
+//    game.load.image('o', 'assets/img/drops/o.png');
+//    game.load.image('p', 'assets/img/drops/p.png');
+//    game.load.image('q', 'assets/img/drops/q.png');
+//    game.load.image('r', 'assets/img/drops/r.png');
+//    game.load.image('s', 'assets/img/drops/s.png');
+//    game.load.image('t', 'assets/img/drops/t.png');
+//    game.load.image('u', 'assets/img/drops/u.png');
+//    game.load.image('v', 'assets/img/drops/v.png');
+//    game.load.image('w', 'assets/img/drops/w.png');
+//    game.load.image('x', 'assets/img/drops/x.png');
+//    game.load.image('y', 'assets/img/drops/y.png');
+//    game.load.image('z', 'assets/img/drops/z.png');
+//    game.load.image('start', 'assets/img/start.png');
+//    game.load.image('leaderboard', 'assets/img/leaderboard.png');
+//    game.load.image('replay', 'assets/img/replay.png');
+//    game.load.audio('theme', 'assets/audio/theme.mp3');
+//    game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
+//    game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
+//}
 
 //Create objects and add them to the game world
 function create() {
@@ -63,7 +129,6 @@ function create() {
     dictionary = this.game.cache.getText('dictionary').split(/\s+/);
 
     //Add a background to the game.
-    background = game.add.tileSprite(0, 0, 1000, 600, "background");
     background = game.add.tileSprite(0, 0, 650, 700, "background");
 
     //Allow the user to type words into the game.
@@ -114,18 +179,18 @@ function create() {
 
     //console.log(dropMap);
 
-    //Game audio
-    keyPressFX = game.add.audio('keyPress');
-    buttonClickFX = game.add.audio('buttonClick');
-    
-    buttonClickFX.addMarker('start', 0, 5);
-    buttonClickFX.addMarker('leaderboard', 0, 5);
-    buttonClickFX.addMarker('replay', 0, 5);
-                            
-    makeButton('start', 300, 300);
-    makeButton('leaderboard', 300, 400);
-                            
-    playBackground();
+    ////Game audio
+    //keyPressFX = game.add.audio('keyPress');
+    //buttonClickFX = game.add.audio('buttonClick');
+    //
+    //buttonClickFX.addMarker('start', 0, 5);
+    //buttonClickFX.addMarker('leaderboard', 0, 5);
+    //buttonClickFX.addMarker('replay', 0, 5);
+    //
+    //makeButton('start', 300, 300);
+    //makeButton('leaderboard', 300, 400);
+    //
+    //playBackground();
 }
 
 //updates the game
@@ -194,7 +259,6 @@ function makeButton(name, x, y) {
     button.name = name;
     button.scale.set(0.2, 0.2);
     button.smoothed = false;
-
 }
 
 //Play sound for clicking a button
@@ -329,15 +393,12 @@ function distance(x1, y1, x2, y2) {
 }
 
 function isColliding(drop1, drop2) {
-    var distance = distance(drop1.x, drop1.y, drop2.x, drop2.y);
-    return distance <= 30;
-
+    return distance(drop1.x, drop1.y, drop2.x, drop2.y) <= 30;
 }
 
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
 Drop.prototype.constructor = Drop;
 
 game.state.add('GameState', GameState);
-//game.state.add();
-//game.state.add();
-game.state.start('GameState');
+game.state.add('MainMenu', states.MainMenu);
+game.state.start('MainMenu');
