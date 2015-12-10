@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
 
     <!-- Phaser library-->
-    <script src = "js/phaser.min.js"></script>
-    <!-- Our script file-->
+    <script src = "js/phaser.js"></script>
+
+    <!-- Our script files-->
+    <script src="js/boot.js"></script>
     <script src="js/app.js"></script>
+
+    <script>
+        (function() {
+            var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
+            game.state.add("Boot", boot);
+            game.state.add("App", app);
+            game.state.start("Boot");
+        })();
+    </script>
+
     <!--Stylesheet-->
     <link rel="stylesheet" href="css/main.css"/>
+
     <title>Word Cloud</title>
 </head>
 <body>
