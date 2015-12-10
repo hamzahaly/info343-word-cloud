@@ -19,6 +19,7 @@ var startTyping;
 var scoreText;
 var score = 0;
 
+//Preload all assets into the game
 function preload() {
 	game.load.text('dictionary', 'assets/dictionary.txt');
     game.load.image('background', 'assets/img/background.png');
@@ -56,11 +57,16 @@ function preload() {
     game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
 }
 
+//Create objects and add them to the game world
 function create() {
+    //Add a dictionary to the game.
     dictionary = this.game.cache.getText('dictionary').split(/\s+/);
-    background = game.add.tileSprite(0, 0, 1000, 600, "background");
 
+    //Add a background to the game.
+    background = game.add.tileSprite(0, 0, 1000, 600, "background");
     background = game.add.tileSprite(0, 0, 650, 700, "background");
+
+    //Allow the user to type words into the game.
     textInput = game.make.bitmapData(800, 600);
     textInput.context.font = '18px Arial';
     textInput.context.fillStyle = '#FFF';
@@ -72,6 +78,7 @@ function create() {
     textboxline3 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX, game.world.centerY + 250);
     textboxline4 = new Phaser.Line(game.world.centerX + 300, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 250);
 
+    //Retrieve keyboard presses from the player
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
     textInput = game.add.text(game.world.centerX + 5, 560, "", {
         font: "28px Arial",
@@ -80,14 +87,16 @@ function create() {
     });
     textInput.setText(textInput.text);
 
+
     startTyping = game.add.text(game.world.centerX - 175, 560, "Start Typing!");
-    console.log(score);
+    // console.log(score);
     scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 300, "score: " + score, {
         font: '28px Arial',
         fill: '#000',
         align: 'center'
     });
 
+    //Keys for backspace and enter
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
@@ -103,8 +112,9 @@ function create() {
     //createDrops(word);
     createDrops();
 
-    console.log(dropMap);
+    //console.log(dropMap);
 
+    //Game audio
     keyPressFX = game.add.audio('keyPress');
     buttonClickFX = game.add.audio('buttonClick');
     
@@ -118,6 +128,7 @@ function create() {
     playBackground();
 }
 
+//updates the game
 function update() {
     game.debug.geom(textboxline1, '#000');
     game.debug.geom(textboxline2, '#000');
@@ -136,17 +147,19 @@ function update() {
     scoreText.setText("Score: " + score);
 }
 
+//Captures the keypress of the player
 function keyPress(char) {
     //console.log("here");
     //console.log("HELLO");
     //console.log(textInput.text);
-    var x = 64;
-    var idx;
-    console.log(char);
+    //var x = 64;
+    //var idx;
+    //console.log(char);
     textInput.text += char;
-    console.log(textInput.text);
+    //console.log(textInput.text);
 }
 
+//When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
     if (checkIfOnScreen(textInput.text)) {
         //remove letters
@@ -163,16 +176,19 @@ function submitText() {
     }
 }
 
+//Allow user to use backspace to delete their typed word
 function deleteText() {
     textInput.text = textInput.text.substring(0, textInput.text.length - 1);
 }
 
+//Play the background music
 function playBackground() {
     music = game.add.audio('theme');
     music.autoplay = true;
     music.play("", 0, 1, true);
 }
 
+//Make buttons function for the game
 function makeButton(name, x, y) {
     var button = game.add.button(x, y, name, click, this, 0, 1, 2);
     button.name = name;
@@ -181,6 +197,7 @@ function makeButton(name, x, y) {
 
 }
 
+//Play sound for clicking a button
 function click(button) {
 	buttonClickFX.play(button.name, 0);
 }
@@ -212,7 +229,7 @@ var dropMap = new Map();
 //    }
 //}
 
-
+//Creates the letters that will drop from the top of the screen
 function createDrops() {
     //var word = 'fuck';
     var word = dictionary[getRandomInt(0, dictionary.length)];
@@ -263,6 +280,7 @@ function checkIfOnScreen(word) {
     return true;
 }
 
+//Destroys (removes) the drops from the screen
 function destroyDrops(word) {
 
     var wordArray = word.split('');
@@ -303,8 +321,23 @@ function addLetters() {
 	}
 }
 
+//calculates the distance between two points
+function distance(x1, y1, x2, y2) {
+    var x = (x2 - x1) * (x2 - x1);
+    var y = (y2 - y1) * (y2 - y1);
+    return Math.sqrt(x + y);
+}
+
+function isColliding(drop1, drop2) {
+    var distance = distance(drop1.x, drop1.y, drop2.x, drop2.y);
+    return distance <= 30;
+
+}
+
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
 Drop.prototype.constructor = Drop;
 
 game.state.add('GameState', GameState);
+//game.state.add();
+//game.state.add();
 game.state.start('GameState');
