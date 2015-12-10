@@ -76,17 +76,28 @@ states.MainMenu.prototype = {
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        /*var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", null, this);
+        var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", this.LeaderBoard, this);
         leaderButton.anchor.setTo(0.5, 0.5);
-        leaderButton.scale.set(0.2, 0.2);*/
-        makeButton('leaderboard', game.world.centerX - 85, game.world.centerY + 60);
+        leaderButton.scale.set(0.2, 0.2);
+        //makeButton('leaderboard', game.world.centerX - 85, game.world.centerY + 60);
         playBackground();
     },
     startGame: function() {
         buttonClickFX.play('startButton', 0);
         this.game.state.start('GameState');
+    },
+    
+    LeaderBoard: function() {
+        buttonClickFX.play('startButton', 0);
+        this.game.state.start('LeaderBoard');
     }
 };
+
+states.LeaderBoard.prototype = {
+    create: function() {
+        background = game.add.tileSprite(0, 0, 650, 700, "background");
+    }
+}
 
 states.GameOver.prototype = {
     create: function() {
@@ -103,7 +114,7 @@ states.GameOver.prototype = {
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        var leaderBoard = this.game.add.button(game.world.centerX, game.world.centerY + 200, "leaderboard", this.leaderBoard, this);
+        var leaderBoard = this.game.add.button(game.world.centerX, game.world.centerY + 200, "leaderboard", this.LeaderBoard, this);
         leaderBoard.anchor.setTo(0.5, 0.5);
         leaderBoard.scale.set(0.2, 0.2);
     },
@@ -113,6 +124,10 @@ states.GameOver.prototype = {
         buttonClickFX = game.add.audio('buttonClick');
         buttonClickFX.play('buttonClick', 0);
         this.game.state.start('GameState');
+    },
+    LeaderBoard: function() {
+        buttonClickFX.play('startButton', 0);
+        this.game.state.start('LeaderBoard');
     }
 };
 
@@ -445,4 +460,5 @@ Drop.prototype.update = function() {
 game.state.add('GameState', GameState);
 game.state.add('MainMenu', states.MainMenu);
 game.state.add('GameOver', states.GameOver);
+game.state.add('LeaderBoard', states.LeaderBoard);
 game.state.start('MainMenu');
