@@ -320,7 +320,7 @@ function submitText() {
                 align: 'center'
             })
         }
-        console.log('false!')
+        console.log('false!');
         wrongFX.play("", 0, 1);
         textInput.setText("");
     }
