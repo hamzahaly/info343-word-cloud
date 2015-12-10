@@ -66,32 +66,38 @@ states.MainMenu.prototype = {
         this.game.load.audio('theme', 'assets/audio/theme.mp3');
         this.game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
         this.game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
+        this.game.load.audio('correct', 'assets/audio/correct.wav');
+        this.game.load.audio('wrong', 'assets/audio/wrong.wav');
         console.log('loaded sprites');
     },
     create: function() {
         //background
         background = game.add.tileSprite(0, 0, 650, 700, "background");
+        
         //Game audio
         keyPressFX = game.add.audio('keyPress');
         buttonClickFX = game.add.audio('buttonClick');
+        correctFX = game.add.audio('correct');
+        wrongFX = game.add.audio('wrong');
 
-        buttonClickFX.addMarker('start', 0, 5);
-        buttonClickFX.addMarker('leaderboard', 0, 5);
-        buttonClickFX.addMarker('replay', 0, 5);
+        buttonClickFX.addMarker('startButton', 0, 5);
+        buttonClickFX.addMarker('leaderButton', 0, 5);
+        //buttonClickFX.addMarker('replay', 0, 5);
 
         //Start the game by clicking this button
         var startButton = this.game.add.button(game.world.centerX, game.world.centerY, "start", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        makeButton('leaderboard', 300, 400);
-
+        /*var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", null, this);
+        leaderButton.anchor.setTo(0.5, 0.5);
+        leaderButton.scale.set(0.2, 0.2);*/
+        makeButton('leaderboard', game.world.centerX - 85, game.world.centerY + 60);
+        
         playBackground();
     },
     startGame: function() {
-        keyPressFX = game.add.audio('keyPress');
-        buttonClickFX = game.add.audio('buttonClick');
-        buttonClickFX.play('buttonClick', 0);
+        buttonClickFX.play('startButton', 0);
         this.game.state.start('GameState');
     }
 };
@@ -213,6 +219,7 @@ function keyPress(char) {
     //var idx;
     //console.log(char);
     textInput.text += char;
+    keyPressFX.play("", 0, 1);
     //console.log(textInput.text);
 }
 
@@ -226,10 +233,13 @@ function submitText() {
             score += textInput.text.length * 10;
             destroyDrops(textInput.text)
             textInput.setText("");
+            correctFX.play("", 0, 1);
         }
         console.log("not in dictionary");
     } else {
         console.log('false!')
+        wrongFX.play("", 0, 1);
+        textInput.setText("");
     }
 }
 
