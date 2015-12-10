@@ -8,26 +8,7 @@ states.Loading = function() {};
 states.MainMenu = function() {};
 states.GameOver = function() {};
 states.LeaderBoard = function() {};
-//
-//states.GameOver.prototype = {
-//    create: function() {
-//        background = game.add.tileSprite(0, 0, 650, 700, "background");
-//        //Game audio
-//        keyPressFX = game.add.audio('keyPress');
-//        buttonClickFX = game.add.audio('buttonClick');
-//
-//        buttonClickFX.addMarker('start', 0, 5);
-//        buttonClickFX.addMarker('leaderboard', 0, 5);
-//        buttonClickFX.addMarker('replay', 0, 5);
-//
-//        //var startButton = makeButton('start', 300, 300);
-//        var startButton = this.game.add.button(game.world.centerX, game.world.centerY, "start", this.startGame, this);
-//        startButton.anchor.setTo(0.5, 0.5);
-//        makeButton('leaderboard', 300, 400);
-//
-//        playBackground();
-//    }
-//};
+
 
 states.MainMenu.prototype = {
     //Preload all assets into the game
@@ -213,10 +194,6 @@ function create() {
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
-    //example word for debugging
-    //var word = 'ffffffuck';
-    //createDrops(word);
-    createDrops();
     game.time.events.loop(5000, createDrops, this);
 
 }
@@ -334,23 +311,6 @@ function getRandomInt(min, max) {
 // Map where keys are letters and value are arrays of dropObjects
 var dropMap = new Map();
 
-// Creates drops from a given word
-
-//old create drop
-//function createDrops(word) {
-//    for (var i = 0; i < word.length; i++) {
-//        var character = word.charAt(i);
-//        var newDrop = new Drop(game, character);
-//        game.add.existing(newDrop);
-//        drops.add(newDrop);
-//        if (dropMap.has(character)) {
-//            dropMap.get(character).push(newDrop);
-//        } else {
-//            dropMap.set(character, new Array());
-//            dropMap.get(character).push(newDrop);
-//        }
-//    }
-//}
 
 //Creates the letters that will drop from the top of the screen
 function createDrops() {
@@ -402,7 +362,6 @@ function checkIfOnScreen(word) {
 
 //Destroys (removes) the drops from the screen
 function destroyDrops(word) {
-
     var wordArray = word.split('');
     for (var i = 0; i < wordArray.length; i++) {
         var char = wordArray[i];
@@ -413,9 +372,9 @@ function destroyDrops(word) {
 //Prototype/template for the drop object
 Drop = function(game, char) {
     var numColumns = 35;
-    var numRows = 3;
+    var numRows = 2;
     var x = numColumns * (getRandomInt(0, game.world.width / numColumns));
-    var y = numRows * (getRandomInt(0 / numRows, 45 / numRows));
+    var y = numRows * (getRandomInt(0 / numRows, 46 / numRows));
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
 };
@@ -439,15 +398,6 @@ function gameOver() {
     console.log('gameover');
 }
 
-//function createSingleDrop(game, char) {
-//    //Prototype/template for the drop object
-//    Drop = function(game, char) {
-//        var x = getRandomInt(0, game.world.width);
-//        var y = 0;
-//        Phaser.Sprite.call(this, game, x, y, char);
-//        this.game.physics.arcade.enableBody(this);
-//    };
-//}
 
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
 Drop.prototype.constructor = Drop;
