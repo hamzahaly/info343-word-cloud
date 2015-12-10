@@ -1,7 +1,13 @@
 // Project Word Cloud by Kevin Yan, Peter Lu, Hai Nguyen, Hamzah Aly
 // An HTML5 video game that tests the user's vocabulary and typing ability.
+Parse.initialize("AZFr3gs8vJnsV8ZFqn4SbYTz4tStqSDdYpLR3VLL", "MCOZMomXavVVV27Rg5m4rFnc4IrebFw74aUOQhWw");
 
 var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
+
+var Player = Parse.Object.extend('Player');
+var playerQuery = new Parse.Query(Player);
+playerQuery.descending('score');
+var players = [];
 
 var states = {};
 states.Loading = function() {};
@@ -396,6 +402,37 @@ function gameOver() {
     var yourScore;
     yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
     console.log('gameover');
+    sendScores();
+}
+
+// FIREBASE SEND
+
+function sendScores() {
+    var player = new Player();
+    player.set('score', score);
+    player.save();
+    console.log("sending");
+}
+
+// FIRE BASEFETCH
+function displayError(err) {
+    console.log(err);
+}
+
+function fetchScores() {
+    playerQuery.find().then(onData, displayError);
+}
+
+function onData(result) {
+    players = result;
+    renderScores();
+}
+
+function renderScores() {
+    var leaderboardText;
+    for (var i = 0; i < 10; i++) {
+        leaderboardText = game.add.text(game.world.centerX, game.world.centerY, "Score: " + players[i]);
+    }
 }
 
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
