@@ -74,7 +74,6 @@ states.MainMenu.prototype = {
         leaderButton.anchor.setTo(0.5, 0.5);
         leaderButton.scale.set(0.2, 0.2);*/
         makeButton('leaderboard', game.world.centerX - 85, game.world.centerY + 60);
-        
         playBackground();
     },
     startGame: function() {
@@ -98,7 +97,7 @@ states.GameOver.prototype = {
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        var leaderBoard = this.game.add.button(game.world.centerX, game.world.centerY + 200, "leaderboard", this.leaderBoard, this)
+        var leaderBoard = this.game.add.button(game.world.centerX, game.world.centerY + 200, "leaderboard", this.leaderBoard, this);
         leaderBoard.anchor.setTo(0.5, 0.5);
         leaderBoard.scale.set(0.2, 0.2);
     },
@@ -194,7 +193,8 @@ function create() {
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
-    game.time.events.loop(5000, createDrops, this);
+    createDrops();
+    game.time.events.loop(6000, createDrops, this);
 
 }
 
@@ -332,7 +332,7 @@ function createDrops() {
             if (dropMap.has(chars[random])) {
                 dropMap.get(chars[random]).push(newDrop);
             } else {
-                dropMap.set(chars[random], new Array());
+                dropMap.set(chars[random], []);
                 dropMap.get(chars[random]).push(newDrop);
             }
         }
@@ -371,10 +371,10 @@ function destroyDrops(word) {
 
 //Prototype/template for the drop object
 Drop = function(game, char) {
-    var numColumns = 35;
-    var numRows = 2;
-    var x = numColumns * (getRandomInt(0, game.world.width / numColumns));
-    var y = numRows * (getRandomInt(0 / numRows, 46 / numRows));
+    var numColumns = 15;
+    var numRows = 23;
+    var x = numColumns * (getRandomInt(0, (game.world.width - 10) / numColumns));
+    var y = numRows * (getRandomInt(0 , 69 / numRows));
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
 };
@@ -397,7 +397,6 @@ function gameOver() {
     yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
     console.log('gameover');
 }
-
 
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
 Drop.prototype.constructor = Drop;
