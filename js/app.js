@@ -47,14 +47,22 @@ states.MainMenu.prototype = {
         this.game.load.image('x', 'assets/img/drops/x.png');
         this.game.load.image('y', 'assets/img/drops/y.png');
         this.game.load.image('z', 'assets/img/drops/z.png');
-        this.game.load.image('start', 'assets/img/start.png');
-        this.game.load.image('leaderboard', 'assets/img/leaderboard.png');
+        this.game.load.image('start', 'assets/img/clouds4nightz/wordcloudbuttons-01.png');
+        this.game.load.image('leaderboard', 'assets/img/clouds4nightz/wordcloudbuttons-02.png');
+        this.game.load.image('playagain', 'assets/img/clouds4nightz/wordcloudbuttons-03.png');
+        this.game.load.image('clouds', 'assets/img/clouds4nightz/wordcloudclouds-02.png');
         this.game.load.image('replay', 'assets/img/replay.png');
         this.game.load.audio('theme', 'assets/audio/theme.mp3');
         this.game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
         this.game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
         this.game.load.audio('correct', 'assets/audio/correct.wav');
         this.game.load.audio('wrong', 'assets/audio/wrong.wav');
+        this.game.load.image('grass1',"assets/img/grass4dayz/wordcloudgrass2-01.png");
+        this.game.load.image('grass2',"assets/img/grass4dayz/wordcloudgrass3-01.png");
+        this.game.load.image('grass3',"assets/img/grass4dayz/wordcloudgrass4-01.png");
+        this.game.load.image('grass4',"assets/img/grass4dayz/wordcloudgrass6-01.png");
+        this.game.load.image('grass5',"assets/img/grass4dayz/wordcloudgrass-01.png");
+
         console.log('loaded sprites');
     },
     create: function() {
@@ -72,11 +80,11 @@ states.MainMenu.prototype = {
         //buttonClickFX.addMarker('replay', 0, 5);
 
         //Start the game by clicking this button
-        var startButton = this.game.add.button(game.world.centerX, game.world.centerY, "start", this.startGame, this);
+        var startButton = this.game.add.button(game.world.centerX, game.world.centerY - 25, "start", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", this.LeaderBoard, this);
+        var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 100, "leaderboard", this.LeaderBoard, this);
         leaderButton.anchor.setTo(0.5, 0.5);
         leaderButton.scale.set(0.2, 0.2);
         //makeButton('leaderboard', game.world.centerX - 85, game.world.centerY + 60);
@@ -114,7 +122,7 @@ states.LeaderBoard.prototype = {
         buttonClickFX.play('buttonClick', 0);
         this.game.state.start('GameState');
     }
-}
+};
 
 states.GameOver.prototype = {
     create: function() {
@@ -127,11 +135,11 @@ states.GameOver.prototype = {
         yourScore.anchor.setTo(0.5, 0.5);
 
         //Start the game by clicking this button
-        var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 100, "start", this.startGame, this);
+        var startButton = this.game.add.button(game.world.centerX / 2, game.world.centerY + 100, "playagain", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        var leaderBoard = this.game.add.button(game.world.centerX, game.world.centerY + 200, "leaderboard", this.LeaderBoard, this);
+        var leaderBoard = this.game.add.button(game.world.centerX * 1.5, game.world.centerY + 100, "leaderboard", this.LeaderBoard, this);
         leaderBoard.anchor.setTo(0.5, 0.5);
         leaderBoard.scale.set(0.2, 0.2);
     },
@@ -227,7 +235,7 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 5;
+    game.physics.arcade.gravity.y = 20;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
@@ -269,6 +277,10 @@ function fadeText() {
     game.time.events.add(Phaser.Timer.SECOND, fade, this);
 }
 
+function fadeUi() {
+    game.add.tween(wrongWord).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None, true);
+}
+
 //function fadeTexts(string, time) {
 //    game.add.tween(string).to ( {alpha: 0}, time, Phaser.Easing.Linear.None, true);
 //}
@@ -290,26 +302,57 @@ function submitText() {
         }
     } else {
         //UI to show the word is not in the dictionary
-        var rand = getRandomInt(1, 3);
+        var rand = getRandomInt(1, 8);
         if (rand === 1) {
-            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Try again!', {
+            wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Try again!', {
                 font: '24px Arial',
                 fill: '#000',
                 align: 'center'
             });
         } else if (rand === 2) {
-            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Nope!', {
+            wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'False!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 3) {
+            wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Nope!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 4) {
+                wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'Try again!', {
+                    font: '24px Arial',
+                    fill: '#000',
+                    align: 'center'
+                });
+        } else if (rand === 5) {
+            wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Nope!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 6) {
+            wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'False!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 7) {
+            wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'Try again!', {
                 font: '24px Arial',
                 fill: '#000',
                 align: 'center'
             });
         } else {
-            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'False!', {
+            wrongWord = game.add.text(game.world.centerX + getRandomInt(50, 100), game.world.centerY +  getRandomInt(100, 200), 'False!', {
                 font: '24px Arial',
                 fill: '#000',
                 align: 'center'
-            })
+            });
         }
+        game.time.events.add(Phaser.Timer.SECOND, fadeUi, this);
         wrongFX.play("", 0, 1);
         textInput.setText("");
     }
