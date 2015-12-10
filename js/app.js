@@ -445,7 +445,7 @@ Drop = function(game, char) {
     var numColumns = 35;
     var numRows = 3;
     var x = numColumns * (getRandomInt(0, game.world.width / numColumns));
-    var y = numRows * (getRandomInt(-60 / numRows, -20 / numRows));
+    var y = numRows * (getRandomInt(0 / numRows, 45 / numRows));
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
 };
