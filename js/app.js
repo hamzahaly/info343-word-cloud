@@ -4,8 +4,33 @@
 var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
 
 var states = {};
+states.Loading = function() {};
 states.MainMenu = function() {};
+states.GameOver = function() {};
+states.LeaderBoard = function() {};
+//
+//states.GameOver.prototype = {
+//    create: function() {
+//        background = game.add.tileSprite(0, 0, 650, 700, "background");
+//        //Game audio
+//        keyPressFX = game.add.audio('keyPress');
+//        buttonClickFX = game.add.audio('buttonClick');
+//
+//        buttonClickFX.addMarker('start', 0, 5);
+//        buttonClickFX.addMarker('leaderboard', 0, 5);
+//        buttonClickFX.addMarker('replay', 0, 5);
+//
+//        //var startButton = makeButton('start', 300, 300);
+//        var startButton = this.game.add.button(game.world.centerX, game.world.centerY, "start", this.startGame, this);
+//        startButton.anchor.setTo(0.5, 0.5);
+//        makeButton('leaderboard', 300, 400);
+//
+//        playBackground();
+//    }
+//};
+
 states.MainMenu.prototype = {
+    //Preload all assets into the game
     preload: function() {
         this.game.load.text('dictionary', 'assets/dictionary.txt');
         this.game.load.image('background', 'assets/img/background.png');
@@ -44,6 +69,7 @@ states.MainMenu.prototype = {
         console.log('loaded sprites');
     },
     create: function() {
+        //background
         background = game.add.tileSprite(0, 0, 650, 700, "background");
         //Game audio
         keyPressFX = game.add.audio('keyPress');
@@ -53,20 +79,22 @@ states.MainMenu.prototype = {
         buttonClickFX.addMarker('leaderboard', 0, 5);
         buttonClickFX.addMarker('replay', 0, 5);
 
-        //var startButton = makeButton('start', 300, 300);
+        //Start the game by clicking this button
         var startButton = this.game.add.button(game.world.centerX, game.world.centerY, "start", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
+        startButton.scale.set(0.2, 0.2);
+
         makeButton('leaderboard', 300, 400);
 
         playBackground();
-
     },
     startGame: function() {
+        keyPressFX = game.add.audio('keyPress');
+        buttonClickFX = game.add.audio('buttonClick');
+        buttonClickFX.play('buttonClick', 0);
         this.game.state.start('GameState');
     }
 };
-
-
 
 var GameState = {
     create: create, update: update
@@ -77,54 +105,19 @@ var textInput;
 var deleteKey;
 var enterKey;
 var drops;
-var textboxline1;
-var textboxline2;
-var textboxline3;
-var textboxline4;
+var textboxlinetop;
+var textboxlinebottom;
+var textboxlineleft;
+var textboxlineright;
 var startTyping;
 var scoreText;
 var score = 0;
 
-//Preload all assets into the game
-//function preload() {
-//	game.load.text('dictionary', 'assets/dictionary.txt');
-//    game.load.image('background', 'assets/img/background.png');
-//    game.load.image('a', 'assets/img/drops/a.png');
-//    game.load.image('b', 'assets/img/drops/b.png');
-//    game.load.image('c', 'assets/img/drops/c.png');
-//    game.load.image('d', 'assets/img/drops/d.png');
-//    game.load.image('e', 'assets/img/drops/e.png');
-//    game.load.image('f', 'assets/img/drops/f.png');
-//    game.load.image('g', 'assets/img/drops/g.png');
-//    game.load.image('h', 'assets/img/drops/h.png');
-//    game.load.image('i', 'assets/img/drops/i.png');
-//    game.load.image('j', 'assets/img/drops/j.png');
-//    game.load.image('k', 'assets/img/drops/k.png');
-//    game.load.image('l', 'assets/img/drops/l.png');
-//    game.load.image('m', 'assets/img/drops/m.png');
-//    game.load.image('n', 'assets/img/drops/n.png');
-//    game.load.image('o', 'assets/img/drops/o.png');
-//    game.load.image('p', 'assets/img/drops/p.png');
-//    game.load.image('q', 'assets/img/drops/q.png');
-//    game.load.image('r', 'assets/img/drops/r.png');
-//    game.load.image('s', 'assets/img/drops/s.png');
-//    game.load.image('t', 'assets/img/drops/t.png');
-//    game.load.image('u', 'assets/img/drops/u.png');
-//    game.load.image('v', 'assets/img/drops/v.png');
-//    game.load.image('w', 'assets/img/drops/w.png');
-//    game.load.image('x', 'assets/img/drops/x.png');
-//    game.load.image('y', 'assets/img/drops/y.png');
-//    game.load.image('z', 'assets/img/drops/z.png');
-//    game.load.image('start', 'assets/img/start.png');
-//    game.load.image('leaderboard', 'assets/img/leaderboard.png');
-//    game.load.image('replay', 'assets/img/replay.png');
-//    game.load.audio('theme', 'assets/audio/theme.mp3');
-//    game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
-//    game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
-//}
-
 //Create objects and add them to the game world
 function create() {
+    //fix blurry text
+    game.renderer.renderSession.roundPixels = true;
+
     //Add a dictionary to the game.
     dictionary = this.game.cache.getText('dictionary').split(/\s+/);
 
@@ -138,23 +131,31 @@ function create() {
     textInput.addToWorld();
 
     //Build a makeshift text box
-    textboxline1 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 200);
-    textboxline2 = new Phaser.Line(game.world.centerX, game.world.centerY + 250, game.world.centerX + 300, game.world.centerY + 250);
-    textboxline3 = new Phaser.Line(game.world.centerX, game.world.centerY + 200, game.world.centerX, game.world.centerY + 250);
-    textboxline4 = new Phaser.Line(game.world.centerX + 300, game.world.centerY + 200, game.world.centerX + 300, game.world.centerY + 250);
+    textboxlinetop = new Phaser.Line(game.world.centerX / 2, game.world.centerY + 200, game.world.centerX * 1.5, game.world.centerY + 200);
+    textboxlinebottom = new Phaser.Line(game.world.centerX / 2, game.world.centerY + 250, game.world.centerX * 1.5, game.world.centerY + 250);
+    textboxlineleft = new Phaser.Line(game.world.centerX / 2, game.world.centerY + 200, game.world.centerX / 2, game.world.centerY + 250);
+    textboxlineright = new Phaser.Line(game.world.centerX * 1.5, game.world.centerY + 200, game.world.centerX * 1.5, game.world.centerY + 250);
+
 
     //Retrieve keyboard presses from the player
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
-    textInput = game.add.text(game.world.centerX + 5, 560, "", {
+    textInput = game.add.text(game.world.centerX + 5, 575, "", {
         font: "28px Arial",
         fill: "#000",
         align: "center"
     });
     textInput.setText(textInput.text);
+    textInput.anchor.setTo(0.5, 0.5);
 
 
-    startTyping = game.add.text(game.world.centerX - 175, 560, "Start Typing!");
-    // console.log(score);
+    startTyping = game.add.text(game.world.centerX, game.world.centerY, "Start Typing!", {
+        font: '48px Arial',
+        fill: '#000',
+        align: 'center'
+    });
+    startTyping.anchor.setTo(0.5, 0.5);
+    game.time.events.add(Phaser.Timer.SECOND, fadeText, this);
+
     scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 300, "score: " + score, {
         font: '28px Arial',
         fill: '#000',
@@ -176,29 +177,17 @@ function create() {
     //var word = 'ffffffuck';
     //createDrops(word);
     createDrops();
+    game.time.events.loop(5000, createDrops, this);
 
     //console.log(dropMap);
-
-    ////Game audio
-    //keyPressFX = game.add.audio('keyPress');
-    //buttonClickFX = game.add.audio('buttonClick');
-    //
-    //buttonClickFX.addMarker('start', 0, 5);
-    //buttonClickFX.addMarker('leaderboard', 0, 5);
-    //buttonClickFX.addMarker('replay', 0, 5);
-    //
-    //makeButton('start', 300, 300);
-    //makeButton('leaderboard', 300, 400);
-    //
-    //playBackground();
 }
 
 //updates the game
 function update() {
-    game.debug.geom(textboxline1, '#000');
-    game.debug.geom(textboxline2, '#000');
-    game.debug.geom(textboxline3, '#000');
-    game.debug.geom(textboxline4, '#000');
+    game.debug.geom(textboxlinetop, '#000');
+    game.debug.geom(textboxlinebottom, '#000');
+    game.debug.geom(textboxlineleft, '#000');
+    game.debug.geom(textboxlineright, '#000');
 
     //Delete a letter from the word being typed.
     if (this.deleteKey.isDown) {
@@ -212,7 +201,10 @@ function update() {
     scoreText.setText("Score: " + score);
 }
 
-//Captures the keypress of the player
+function fadeText() {
+    game.add.tween(startTyping).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+}
+//Captures the keypress of the player and appends the character to a string
 function keyPress(char) {
     //console.log("here");
     //console.log("HELLO");
@@ -312,6 +304,7 @@ function createDrops() {
             uniqueNums.push(random);
 
             var newDrop = new Drop(game, chars[random]);
+
             drops.add(newDrop);
             if (dropMap.has(chars[random])) {
                 dropMap.get(chars[random]).push(newDrop);
