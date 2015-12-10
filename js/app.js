@@ -442,8 +442,10 @@ function destroyDrops(word) {
 
 //Prototype/template for the drop object
 Drop = function(game, char) {
-    var x = getRandomInt(0, game.world.width);
-    var y = 0;
+    var numColumns = 35;
+    var numRows = 3;
+    var x = numColumns * (getRandomInt(0, game.world.width / numColumns));
+    var y = numRows * (getRandomInt(-60 / numRows, -20 / numRows));
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
 };
