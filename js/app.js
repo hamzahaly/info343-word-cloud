@@ -95,7 +95,24 @@ states.MainMenu.prototype = {
 
 states.LeaderBoard.prototype = {
     create: function() {
+        var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", this.LeaderBoard, this);
         background = game.add.tileSprite(0, 0, 650, 700, "background");
+        //var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "start", this.startGame, this);
+        //startButton.anchor.setTo(0.5, 0.5);
+        //startButton.scale.set(0.2, 0.2);
+
+        var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "start", this.startGame, this);
+        startButton.anchor.setTo(0.5, 0.5);
+        startButton.scale.set(0.2, 0.2);
+
+        fetchScores();
+    },
+    startGame: function() {
+        score = 0;
+        keyPressFX = game.add.audio('keyPress');
+        buttonClickFX = game.add.audio('buttonClick');
+        buttonClickFX.play('buttonClick', 0);
+        this.game.state.start('GameState');
     }
 }
 
@@ -425,6 +442,7 @@ function gameOver() {
 function sendScores() {
     var player = new Player();
     player.set('score', score);
+    //player.set('name', playerName);
     player.save();
     console.log("sending");
 }
@@ -443,10 +461,13 @@ function onData(result) {
     renderScores();
 }
 
+var style = { font: "32px Arial", fill: "#000000", wordWrap: true, align: "center" };
+
 function renderScores() {
     var leaderboardText;
     for (var i = 0; i < 10; i++) {
-        leaderboardText = game.add.text(game.world.centerX, game.world.centerY, "Score: " + players[i]);
+        //player[i].get('name') +
+        leaderboardText = game.add.text(game.world.centerX - 110, game.world.centerY - 220 + (45 * i), '..........' + players[i].get('score') , style);
     }
 }
 
