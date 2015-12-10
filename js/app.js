@@ -111,7 +111,7 @@ states.GameOver.prototype = {
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        var leaderBoard = this.game.add.button(game.world.centerX, game.world.centerY + 150, "leaderboard", this.leaderBoard, this)
+        var leaderBoard = this.game.add.button(game.world.centerX, game.world.centerY + 200, "leaderboard", this.leaderBoard, this)
         leaderBoard.anchor.setTo(0.5, 0.5);
         leaderBoard.scale.set(0.2, 0.2);
     },
@@ -142,6 +142,8 @@ var scoreText;
 var score = 0;
 var losingBar;
 var howToPlay;
+var wrongWord;
+var correctWord;
 
 //Create objects and add them to the game world
 function create() {
@@ -177,6 +179,12 @@ function create() {
     textInput.setText(textInput.text);
     textInput.anchor.setTo(0.5, 0.5);
 
+    //startTyping = game.add.text(game.world.centerX, game.world.centerY + 50, "Start Typing!", {
+    //    font: '48px Arial',
+    //    fill: '#000',
+    //    align: 'center'
+    //});
+    //startTyping.anchor.setTo(0.5, 0.5);
 
     howToPlay = game.add.text(game.world.centerX, game.world.centerY, "Don't let the drops reach the bottom!", {
         font: '32px Arial',
@@ -184,20 +192,23 @@ function create() {
         align: 'center'
     });
     howToPlay.anchor.setTo(0.5, 0.5);
-    game.time.events.add(Phaser.Timer.SECOND * 1.5, fadeText, this);
+
     //startTyping = game.add.text(game.world.centerX, game.world.centerY, "Start Typing!", {
     //    font: '48px Arial',
     //    fill: '#000',
     //    align: 'center'
     //});
     //startTyping.anchor.setTo(0.5, 0.5);
-    //game.time.events.add(Phaser.Timer.SECOND, fadeText, this);
+    game.time.events.add(Phaser.Timer.SECOND, fadeText, this);
 
     scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 300, "score: " + score, {
         font: '28px Arial',
         fill: '#000',
         align: 'center'
     });
+
+    //game.time.events.add(Phaser.Timer.SECOND * 1.5, fadeTexts(startTyping, 2000), this);
+    //game.time.events.add(Phaser.Timer.SECOND * 1.5, fadeTexts(howToPlay, 1000), this);
 
     //Keys for backspace and enter
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
@@ -251,6 +262,11 @@ function fadeText() {
     startTyping.anchor.setTo(0.5, 0.5);
     game.time.events.add(Phaser.Timer.SECOND, fade, this);
 }
+
+//function fadeTexts(string, time) {
+//    game.add.tween(string).to ( {alpha: 0}, time, Phaser.Easing.Linear.None, true);
+//}
+
 //Captures the keypress of the player and appends the character to a string
 function keyPress(char) {
     //console.log("here");
@@ -266,7 +282,6 @@ function keyPress(char) {
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
     if (checkIfOnScreen(textInput.text)) {
-        //remove letters
         console.log(textInput.text);
         if (dictionary.indexOf(textInput.text) > -1) {
             console.log("correct mofugga");
@@ -276,6 +291,27 @@ function submitText() {
         }
         console.log("not in dictionary");
     } else {
+        //UI to show the word is not in the dictionary
+        var rand = getRandomInt(1, 3);
+        if (rand === 1) {
+            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Try again!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 2) {
+            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Nope!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else {
+            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'False!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            })
+        }
         console.log('false!')
     }
 }
@@ -401,29 +437,6 @@ Drop = function(game, char) {
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
 };
-
-function addLetters() {
-	// takes random word from dictionary
-	var word = dictionary[getRandomInt(0, dictionary.length)];
-	// splits word into individual letters, a char array
-	var chars = word.split('');
-	// sets up the randomizer by keeping track of which letters have already been inserted
-	var uniqueNums = [];
-	// basically runs until all letters have been inserted because the number
-	// of unique nums should eventually equal the length of the char array
-	while (uniqueNums.length < chars.length) {
-		// pick a random index of the char array
-		var random = getRandomInt(0, chars.length);
-		// checks that the index hasn't been called already, making sure that each letter
-		// is only called once
-		if (uniqueNums.indexOf(random) == -1) {
-			uniqueNums.push(random);
-			Drop(game, chars[random]);
-		}
-		// else, the index isnt unique, the letter has already been inserted, and nothing
-		// happens
-	}
-}
 
 //calculates the distance between two points
 function distance(x1, y1, x2, y2) {
