@@ -20,7 +20,7 @@ states.MainMenu.prototype = {
     //Preload all assets into the game
     preload: function() {
         this.game.load.text('dictionary', 'assets/dictionary.txt');
-        this.game.load.image('background', 'assets/img/background.png');
+        this.game.load.image('background', 'assets/img/background3.png');
         this.game.load.image('a', 'assets/img/drops/a.png');
         this.game.load.image('b', 'assets/img/drops/b.png');
         this.game.load.image('c', 'assets/img/drops/c.png');
@@ -47,9 +47,9 @@ states.MainMenu.prototype = {
         this.game.load.image('x', 'assets/img/drops/x.png');
         this.game.load.image('y', 'assets/img/drops/y.png');
         this.game.load.image('z', 'assets/img/drops/z.png');
-        this.game.load.image('start', 'assets/img/start.png');
-        this.game.load.image('leaderboard', 'assets/img/leaderboard.png');
-        this.game.load.image('replay', 'assets/img/replay.png');
+        this.game.load.image('start', 'assets/img/clouds4nightz/wordcloudbuttons-01.png');
+        this.game.load.image('leaderboard', 'assets/img/clouds4nightz/wordcloudbuttons-02.png');
+        this.game.load.image('replay', 'assets/img/clouds4nightz/wordcloudbuttons-03.png');
         this.game.load.audio('theme', 'assets/audio/theme.mp3');
         this.game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
         this.game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
@@ -72,11 +72,11 @@ states.MainMenu.prototype = {
         //buttonClickFX.addMarker('replay', 0, 5);
 
         //Start the game by clicking this button
-        var startButton = this.game.add.button(game.world.centerX, game.world.centerY, "start", this.startGame, this);
+        var startButton = this.game.add.button(game.world.centerX, game.world.centerY - 100, "start", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", this.LeaderBoard, this);
+        var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 100, "leaderboard", this.LeaderBoard, this);
         leaderButton.anchor.setTo(0.5, 0.5);
         leaderButton.scale.set(0.2, 0.2);
         //makeButton('leaderboard', game.world.centerX - 85, game.world.centerY + 60);
