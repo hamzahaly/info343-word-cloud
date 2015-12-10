@@ -112,11 +112,16 @@ var textboxlineright;
 var startTyping;
 var scoreText;
 var score = 0;
+var tween;
+var hype;
+
+
 
 //Create objects and add them to the game world
 function create() {
     //fix blurry text
     game.renderer.renderSession.roundPixels = true;
+
 
     //Add a dictionary to the game.
     dictionary = this.game.cache.getText('dictionary').split(/\s+/);
@@ -172,15 +177,12 @@ function create() {
     game.physics.arcade.gravity.y = 2;
 
     //creates the drops group that Phaser implements
-    drops = game.add.group();
-    //example word for debugging
-    //var word = 'ffffffuck';
-    //createDrops(word);
-    createDrops();
-    game.time.events.loop(5000, createDrops, this);
 
-    //console.log(dropMap);
+    drops = game.add.group();
+    createDrops();
+    game.time.events.loop(7000, createDrops, this);
 }
+
 
 //updates the game
 function update() {
@@ -197,39 +199,26 @@ function update() {
     if (this.enterKey.isDown) {
         this.enterKey.onDown.add(submitText, this)
     }
-
     scoreText.setText("Score: " + score);
 }
 
 function fadeText() {
     game.add.tween(startTyping).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
 }
+
 //Captures the keypress of the player and appends the character to a string
 function keyPress(char) {
-    //console.log("here");
-    //console.log("HELLO");
-    //console.log(textInput.text);
-    //var x = 64;
-    //var idx;
-    //console.log(char);
     textInput.text += char;
-    //console.log(textInput.text);
 }
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
     if (checkIfOnScreen(textInput.text)) {
-        //remove letters
-        console.log(textInput.text);
         if (dictionary.indexOf(textInput.text) > -1) {
-            console.log("correct mofugga");
             score += textInput.text.length * 10;
             destroyDrops(textInput.text)
             textInput.setText("");
         }
-        console.log("not in dictionary");
-    } else {
-        console.log('false!')
     }
 }
 
@@ -267,35 +256,14 @@ function getRandomInt(min, max) {
 // Map where keys are letters and value are arrays of dropObjects
 var dropMap = new Map();
 
-// Creates drops from a given word
-
-//old create drop
-//function createDrops(word) {
-//    for (var i = 0; i < word.length; i++) {
-//        var character = word.charAt(i);
-//        var newDrop = new Drop(game, character);
-//        game.add.existing(newDrop);
-//        drops.add(newDrop);
-//        if (dropMap.has(character)) {
-//            dropMap.get(character).push(newDrop);
-//        } else {
-//            dropMap.set(character, new Array());
-//            dropMap.get(character).push(newDrop);
-//        }
-//    }
-//}
 
 //Creates the letters that will drop from the top of the screen
 function createDrops() {
-    //var word = 'fuck';
     var word = dictionary[getRandomInt(0, dictionary.length)];
-    console.log(word);
     var chars = word.split('');
-    console.log(chars);
     var uniqueNums = [];
-    console.log('out');
+
     while (uniqueNums.length < chars.length) {
-        console.log('in');
         // pick a random index of the char array
         var random = getRandomInt(0, chars.length);
         // checks that the index hasn't been called already, making sure that each letter
@@ -313,11 +281,9 @@ function createDrops() {
                 dropMap.get(chars[random]).push(newDrop);
             }
         }
-        // else, the index isnt unique, the letter has already been inserted, and nothing
-        // happens
     }
-
 }
+
 
 //return if the given word is onscreen
 function checkIfOnScreen(word) {
@@ -339,7 +305,6 @@ function checkIfOnScreen(word) {
 
 //Destroys (removes) the drops from the screen
 function destroyDrops(word) {
-
     var wordArray = word.split('');
     for (var i = 0; i < wordArray.length; i++) {
         var char = wordArray[i];
@@ -349,34 +314,14 @@ function destroyDrops(word) {
 
 //Prototype/template for the drop object
 Drop = function(game, char) {
-    var x = getRandomInt(0, game.world.width);
-    var y = 0;
+    var numColumns = 35;
+    var numRows = 3;
+    var x = numColumns * (getRandomInt(0, game.world.width / numColumns));
+    var y = numRows * (getRandomInt(-60 / numRows, -20 / numRows));
     Phaser.Sprite.call(this, game, x, y, char);
     this.game.physics.arcade.enableBody(this);
 };
 
-function addLetters() {
-	// takes random word from dictionary
-	var word = dictionary[getRandomInt(0, dictionary.length)];
-	// splits word into individual letters, a char array
-	var chars = word.split('');
-	// sets up the randomizer by keeping track of which letters have already been inserted
-	var uniqueNums = [];
-	// basically runs until all letters have been inserted because the number
-	// of unique nums should eventually equal the length of the char array
-	while (uniqueNums.length < chars.length) {
-		// pick a random index of the char array
-		var random = getRandomInt(0, chars.length);
-		// checks that the index hasn't been called already, making sure that each letter
-		// is only called once
-		if (uniqueNums.indexOf(random) == -1) {
-			uniqueNums.push(random);
-			Drop(game, chars[random]);
-		}
-		// else, the index isnt unique, the letter has already been inserted, and nothing
-		// happens
-	}
-}
 
 //calculates the distance between two points
 function distance(x1, y1, x2, y2) {
