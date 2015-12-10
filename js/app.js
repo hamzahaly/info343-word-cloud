@@ -231,6 +231,10 @@ function fadeText() {
     game.time.events.add(Phaser.Timer.SECOND, fade, this);
 }
 
+function fadeUi() {
+    game.add.tween(wrongWord).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None, true);
+}
+
 //function fadeTexts(string, time) {
 //    game.add.tween(string).to ( {alpha: 0}, time, Phaser.Easing.Linear.None, true);
 //}
@@ -252,26 +256,57 @@ function submitText() {
         }
     } else {
         //UI to show the word is not in the dictionary
-        var rand = getRandomInt(1, 3);
+        var rand = getRandomInt(1, 8);
         if (rand === 1) {
-            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Try again!', {
+            wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Try again!', {
                 font: '24px Arial',
                 fill: '#000',
                 align: 'center'
             });
         } else if (rand === 2) {
-            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Nope!', {
+            wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'False!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 3) {
+            wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Nope!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 4) {
+                wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'Try again!', {
+                    font: '24px Arial',
+                    fill: '#000',
+                    align: 'center'
+                });
+        } else if (rand === 5) {
+            wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Nope!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 6) {
+            wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'False!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 7) {
+            wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'Try again!', {
                 font: '24px Arial',
                 fill: '#000',
                 align: 'center'
             });
         } else {
-            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'False!', {
+            wrongWord = game.add.text(game.world.centerX + getRandomInt(50, 100), game.world.centerY +  getRandomInt(100, 200), 'False!', {
                 font: '24px Arial',
                 fill: '#000',
                 align: 'center'
             });
         }
+        game.time.events.add(Phaser.Timer.SECOND, fadeUi, this);
         wrongFX.play("", 0, 1);
         textInput.setText("");
     }
