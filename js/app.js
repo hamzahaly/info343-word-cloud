@@ -102,6 +102,34 @@ states.MainMenu.prototype = {
     }
 };
 
+states.GameOver.prototype = {
+    create: function() {
+        background = game.add.tileSprite(0, 0, 650, 700, "background");
+        var gameOverText;
+        gameOverText = game.add.text(game.world.centerX, game.world.centerY - 100, "GAME OVER");
+        gameOverText.anchor.setTo(0.5, 0.5);
+        var yourScore;
+        yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
+        yourScore.anchor.setTo(0.5, 0.5);
+
+        //Start the game by clicking this button
+        var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 100, "start", this.startGame, this);
+        startButton.anchor.setTo(0.5, 0.5);
+        startButton.scale.set(0.2, 0.2);
+
+        var leaderBoard = this.game.add.button(game.world.centerX, game.world.centerY + 200, "leaderboard", this.leaderBoard, this)
+        leaderBoard.anchor.setTo(0.5, 0.5);
+        leaderBoard.scale.set(0.2, 0.2);
+    },
+    startGame: function() {
+        score = 0;
+        keyPressFX = game.add.audio('keyPress');
+        buttonClickFX = game.add.audio('buttonClick');
+        buttonClickFX.play('buttonClick', 0);
+        this.game.state.start('GameState');
+    }
+};
+
 var GameState = {
     create: create, update: update
 };
@@ -118,6 +146,10 @@ var textboxlineright;
 var startTyping;
 var scoreText;
 var score = 0;
+var losingBar;
+var howToPlay;
+var wrongWord;
+var correctWord;
 
 //Create objects and add them to the game world
 function create() {
@@ -153,13 +185,26 @@ function create() {
     textInput.setText(textInput.text);
     textInput.anchor.setTo(0.5, 0.5);
 
+    //startTyping = game.add.text(game.world.centerX, game.world.centerY + 50, "Start Typing!", {
+    //    font: '48px Arial',
+    //    fill: '#000',
+    //    align: 'center'
+    //});
+    //startTyping.anchor.setTo(0.5, 0.5);
 
-    startTyping = game.add.text(game.world.centerX, game.world.centerY, "Start Typing!", {
-        font: '48px Arial',
+    howToPlay = game.add.text(game.world.centerX, game.world.centerY, "Don't let the drops reach the bottom!", {
+        font: '32px Arial',
         fill: '#000',
         align: 'center'
     });
-    startTyping.anchor.setTo(0.5, 0.5);
+    howToPlay.anchor.setTo(0.5, 0.5);
+
+    //startTyping = game.add.text(game.world.centerX, game.world.centerY, "Start Typing!", {
+    //    font: '48px Arial',
+    //    fill: '#000',
+    //    align: 'center'
+    //});
+    //startTyping.anchor.setTo(0.5, 0.5);
     game.time.events.add(Phaser.Timer.SECOND, fadeText, this);
 
     scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 300, "score: " + score, {
@@ -168,6 +213,9 @@ function create() {
         align: 'center'
     });
 
+    //game.time.events.add(Phaser.Timer.SECOND * 1.5, fadeTexts(startTyping, 2000), this);
+    //game.time.events.add(Phaser.Timer.SECOND * 1.5, fadeTexts(howToPlay, 1000), this);
+
     //Keys for backspace and enter
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
     this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
@@ -175,7 +223,7 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 2;
+    game.physics.arcade.gravity.y = 15;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
@@ -194,22 +242,37 @@ function update() {
     game.debug.geom(textboxlinebottom, '#000');
     game.debug.geom(textboxlineleft, '#000');
     game.debug.geom(textboxlineright, '#000');
+    game.debug.geom(losingBar, '#F00');
 
     //Delete a letter from the word being typed.
     if (this.deleteKey.isDown) {
         this.deleteKey.onDown.add(deleteText, this);
     }
-
     if (this.enterKey.isDown) {
         this.enterKey.onDown.add(submitText, this)
     }
-
     scoreText.setText("Score: " + score);
 }
 
 function fadeText() {
-    game.add.tween(startTyping).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+    function fade() {
+        game.add.tween(startTyping).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+    }
+    game.add.tween(howToPlay).to( { alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
+
+    startTyping = game.add.text(game.world.centerX, game.world.centerY + 50, "Start Typing!", {
+        font: '48px Arial',
+        fill: '#000',
+        align: 'center'
+    });
+    startTyping.anchor.setTo(0.5, 0.5);
+    game.time.events.add(Phaser.Timer.SECOND, fade, this);
 }
+
+//function fadeTexts(string, time) {
+//    game.add.tween(string).to ( {alpha: 0}, time, Phaser.Easing.Linear.None, true);
+//}
+
 //Captures the keypress of the player and appends the character to a string
 function keyPress(char) {
     //console.log("here");
@@ -226,17 +289,37 @@ function keyPress(char) {
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
     if (checkIfOnScreen(textInput.text)) {
-        //remove letters
         console.log(textInput.text);
         if (dictionary.indexOf(textInput.text) > -1) {
             console.log("correct mofugga");
             score += textInput.text.length * 10;
-            destroyDrops(textInput.text)
+            destroyDrops(textInput.text);
             textInput.setText("");
             correctFX.play("", 0, 1);
         }
         console.log("not in dictionary");
     } else {
+        //UI to show the word is not in the dictionary
+        var rand = getRandomInt(1, 3);
+        if (rand === 1) {
+            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Try again!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else if (rand === 2) {
+            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Nope!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+        } else {
+            wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'False!', {
+                font: '24px Arial',
+                fill: '#000',
+                align: 'center'
+            })
+        }
         console.log('false!')
         wrongFX.play("", 0, 1);
         textInput.setText("");
@@ -314,7 +397,7 @@ function createDrops() {
             uniqueNums.push(random);
 
             var newDrop = new Drop(game, chars[random]);
-
+            //var newDrop = createSingleDrop(game, chars[random]);
             drops.add(newDrop);
             if (dropMap.has(chars[random])) {
                 dropMap.get(chars[random]).push(newDrop);
@@ -365,29 +448,6 @@ Drop = function(game, char) {
     this.game.physics.arcade.enableBody(this);
 };
 
-function addLetters() {
-	// takes random word from dictionary
-	var word = dictionary[getRandomInt(0, dictionary.length)];
-	// splits word into individual letters, a char array
-	var chars = word.split('');
-	// sets up the randomizer by keeping track of which letters have already been inserted
-	var uniqueNums = [];
-	// basically runs until all letters have been inserted because the number
-	// of unique nums should eventually equal the length of the char array
-	while (uniqueNums.length < chars.length) {
-		// pick a random index of the char array
-		var random = getRandomInt(0, chars.length);
-		// checks that the index hasn't been called already, making sure that each letter
-		// is only called once
-		if (uniqueNums.indexOf(random) == -1) {
-			uniqueNums.push(random);
-			Drop(game, chars[random]);
-		}
-		// else, the index isnt unique, the letter has already been inserted, and nothing
-		// happens
-	}
-}
-
 //calculates the distance between two points
 function distance(x1, y1, x2, y2) {
     var x = (x2 - x1) * (x2 - x1);
@@ -395,13 +455,36 @@ function distance(x1, y1, x2, y2) {
     return Math.sqrt(x + y);
 }
 
+//Returns true if two drops are overlapping within 30 pixels of each other.
 function isColliding(drop1, drop2) {
     return distance(drop1.x, drop1.y, drop2.x, drop2.y) <= 30;
 }
 
+function gameOver() {
+    this.game.state.start('GameOver');
+    var yourScore;
+    yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
+    console.log('gameover');
+}
+
+//function createSingleDrop(game, char) {
+//    //Prototype/template for the drop object
+//    Drop = function(game, char) {
+//        var x = getRandomInt(0, game.world.width);
+//        var y = 0;
+//        Phaser.Sprite.call(this, game, x, y, char);
+//        this.game.physics.arcade.enableBody(this);
+//    };
+//}
+
 Drop.prototype = Object.create(Phaser.Sprite.prototype);
 Drop.prototype.constructor = Drop;
+Drop.prototype.update = function() {
+    this.checkWorldBounds = true;
+    this.events.onOutOfBounds.add(gameOver, this);
+};
 
 game.state.add('GameState', GameState);
 game.state.add('MainMenu', states.MainMenu);
+game.state.add('GameOver', states.GameOver);
 game.state.start('MainMenu');
