@@ -243,7 +243,7 @@ function keyPress(char) {
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
-    if (checkIfOnScreen(textInput.text)) {
+    if (checkIfOnScreen(textInput.text) && textInput.text.length > 0) {
         if (dictionary.indexOf(textInput.text) > -1) {
             score += textInput.text.length * 10;
             destroyDrops(textInput.text);
