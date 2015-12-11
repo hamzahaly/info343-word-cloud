@@ -20,7 +20,7 @@ states.MainMenu.prototype = {
     //Preload all assets into the game
     preload: function() {
         this.game.load.text('dictionary', 'assets/dictionary.txt');
-        this.game.load.image('background', 'assets/img/background.png');
+        this.game.load.image('background', 'assets/img/background3.png');
         this.game.load.image('a', 'assets/img/drops/a.png');
         this.game.load.image('b', 'assets/img/drops/b.png');
         this.game.load.image('c', 'assets/img/drops/c.png');
@@ -51,7 +51,6 @@ states.MainMenu.prototype = {
         this.game.load.image('leaderboard', 'assets/img/clouds4nightz/wordcloudbuttons-02.png');
         this.game.load.image('playagain', 'assets/img/clouds4nightz/wordcloudbuttons-03.png');
         this.game.load.image('clouds', 'assets/img/clouds4nightz/wordcloudclouds-02.png');
-        this.game.load.image('replay', 'assets/img/replay.png');
         this.game.load.audio('theme', 'assets/audio/theme.mp3');
         this.game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
         this.game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
@@ -80,7 +79,7 @@ states.MainMenu.prototype = {
         //buttonClickFX.addMarker('replay', 0, 5);
 
         //Start the game by clicking this button
-        var startButton = this.game.add.button(game.world.centerX, game.world.centerY - 25, "start", this.startGame, this);
+        var startButton = this.game.add.button(game.world.centerX, game.world.centerY - 100, "start", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
@@ -109,7 +108,7 @@ states.LeaderBoard.prototype = {
         //startButton.anchor.setTo(0.5, 0.5);
         //startButton.scale.set(0.2, 0.2);
 
-        var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "start", this.startGame, this);
+        var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "playagain", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
@@ -176,9 +175,13 @@ var losingBar;
 var howToPlay;
 var wrongWord;
 var correctWord;
+var dropMap = new Map();
+
 
 //Create objects and add them to the game world
 function create() {
+    //Clear drop map after every playthrough
+    dropMap.clear();
     //fix blurry text
     game.renderer.renderSession.roundPixels = true;
 
@@ -235,12 +238,12 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 20;
+    game.physics.arcade.gravity.y = 1.5;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
     createDrops();
-    game.time.events.loop(6000, createDrops, this);
+    game.time.events.loop(7000, createDrops, this);
 
 }
 
@@ -293,6 +296,8 @@ function keyPress(char) {
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
+    console.log(dropMap);
+
     if (checkIfOnScreen(textInput.text) && textInput.text.length > 0) {
         if (dictionary.indexOf(textInput.text) > -1) {
             score += textInput.text.length * 10;
@@ -387,11 +392,6 @@ function click(button) {
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
-
-// map for letters and their corresponding drops currently on screen
-// Map where keys are letters and value are arrays of dropObjects
-var dropMap = new Map();
-
 
 //Creates the letters that will drop from the top of the screen
 function createDrops() {
