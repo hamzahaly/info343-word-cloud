@@ -108,7 +108,7 @@ states.LeaderBoard.prototype = {
         //startButton.anchor.setTo(0.5, 0.5);
         //startButton.scale.set(0.2, 0.2);
 
-        var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "start", this.startGame, this);
+        var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "playagain", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
@@ -175,9 +175,13 @@ var losingBar;
 var howToPlay;
 var wrongWord;
 var correctWord;
+var dropMap = new Map();
+
 
 //Create objects and add them to the game world
 function create() {
+    //Clear drop map after every playthrough
+    dropMap.clear();
     //fix blurry text
     game.renderer.renderSession.roundPixels = true;
 
@@ -234,12 +238,12 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 8;
+    game.physics.arcade.gravity.y = 1.5;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
     createDrops();
-    game.time.events.loop(6000, createDrops, this);
+    game.time.events.loop(7000, createDrops, this);
 
 }
 
@@ -292,6 +296,8 @@ function keyPress(char) {
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
+    console.log(dropMap);
+
     if (checkIfOnScreen(textInput.text) && textInput.text.length > 0) {
         if (dictionary.indexOf(textInput.text) > -1) {
             score += textInput.text.length * 10;
@@ -386,11 +392,6 @@ function click(button) {
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
-
-// map for letters and their corresponding drops currently on screen
-// Map where keys are letters and value are arrays of dropObjects
-var dropMap = new Map();
-
 
 //Creates the letters that will drop from the top of the screen
 function createDrops() {
