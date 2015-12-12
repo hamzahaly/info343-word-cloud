@@ -297,15 +297,14 @@ function keyPress(char) {
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
     console.log(dropMap);
-
-    if (checkIfOnScreen(textInput.text) && textInput.text.length > 0) {
-        if (dictionary.indexOf(textInput.text) > -1) {
-            score += textInput.text.length * 10;
-            destroyDrops(textInput.text);
-            textInput.setText("");
-            correctFX.play("", 0, 1);
-        }
+    if (checkIfOnScreen(textInput.text) && textInput.text.length > 0 && dictionary.indexOf(textInput.text) >= 0) {
+        console.log('onscreen');
+        score += textInput.text.length * 10;
+        destroyDrops(textInput.text);
+        textInput.setText("");
+        correctFX.play("", 0, 1);
     } else {
+        console.log('notonscreen')
         //UI to show the word is not in the dictionary
         var rand = getRandomInt(1, 8);
         if (rand === 1) {
@@ -477,7 +476,7 @@ function gameOver() {
     var yourScore;
     yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
     console.log('gameover');
-    sendScores();
+    //sendScores();
 }
 
 // FIREBASE SEND
