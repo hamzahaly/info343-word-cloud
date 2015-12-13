@@ -3,9 +3,6 @@
 Parse.initialize("AZFr3gs8vJnsV8ZFqn4SbYTz4tStqSDdYpLR3VLL", "MCOZMomXavVVV27Rg5m4rFnc4IrebFw74aUOQhWw");
 
 var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
-//game = new Phaser.Game(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, Phaser.CANVAS, 'gameArea');
-
-
 
 var Player = Parse.Object.extend('Player');
 var playerQuery = new Parse.Query(Player);
@@ -19,15 +16,20 @@ states.GameOver = function() {};
 states.LeaderBoard = function() {};
 
 
+states.Loading.prototype = {
+    preload: function() {
+        
+    },
+    create: function() {
+        if (this.cache.isSoundDecoded('theme') && this.cache.isSoundDecoded('theme2')) {
+
+        }
+    }
+};
 
 states.MainMenu.prototype = {
     //Preload all assets into the game
     preload: function() {
-        //this.game.stage.scaleMode = Phaser.ScaleManager.SHOW_ALL; //resize your window to see the stage resize too
-        ////this.game.stage.scale.setShowAll();
-        ////this.game.stage.scale.refresh();
-        //game.scale.windowConstraints.bottom = "visual";
-        //Phaser.ScaleManager.SHOW_ALL = 2;
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.scale.minWidth = 325;
         this.scale.minHeight = 450;
@@ -105,12 +107,9 @@ states.MainMenu.prototype = {
         playBackground();
     },
     startGame: function() {
-        if (this.cache.isSoundDecoded('theme') && this.cache.isSoundDecoded('theme2')) {
             buttonClickFX.play('startButton', 0);
             this.game.state.start('GameState');
-        }
     },
-    
     LeaderBoard: function() {
         buttonClickFX.play('startButton', 0);
         this.game.state.start('LeaderBoard');
@@ -366,7 +365,7 @@ function submitText() {
         textInput.setText("");
         correctFX.play("", 0, 1);
     } else {
-        //UI to show the word is not in the dictionary
+        //UI to show errors
         var rand = getRandomInt(1, 8);
         if (rand === 1) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Try again!', {
@@ -593,4 +592,5 @@ game.state.add('GameState', GameState);
 game.state.add('MainMenu', states.MainMenu);
 game.state.add('GameOver', states.GameOver);
 game.state.add('LeaderBoard', states.LeaderBoard);
+game.state.add('Loading', states.Loading);
 game.state.start('MainMenu');
