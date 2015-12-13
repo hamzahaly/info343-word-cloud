@@ -3,38 +3,29 @@
 Parse.initialize("AZFr3gs8vJnsV8ZFqn4SbYTz4tStqSDdYpLR3VLL", "MCOZMomXavVVV27Rg5m4rFnc4IrebFw74aUOQhWw");
 
 var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
-//game = new Phaser.Game(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, Phaser.CANVAS, 'gameArea');
 
-
-
+//Create an object in Parse to store player names and scores, ordered from highest to lowest
 var Player = Parse.Object.extend('Player');
 var playerQuery = new Parse.Query(Player);
 playerQuery.descending('score');
 var players = [];
 
+//Various states for the game, loading, main menu, game over, leaderboard
 var states = {};
 states.Loading = function() {};
 states.MainMenu = function() {};
 states.GameOver = function() {};
 states.LeaderBoard = function() {};
 
-
-
-states.MainMenu.prototype = {
-    //Preload all assets into the game
+//Loading state
+states.Loading.prototype = {
     preload: function() {
-        //this.game.stage.scaleMode = Phaser.ScaleManager.SHOW_ALL; //resize your window to see the stage resize too
-        ////this.game.stage.scale.setShowAll();
-        ////this.game.stage.scale.refresh();
-        //game.scale.windowConstraints.bottom = "visual";
-        //Phaser.ScaleManager.SHOW_ALL = 2;
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.scale.minWidth = 325;
         this.scale.minHeight = 450;
         this.scale.maxWidth = 768;
         this.scale.maxHeight = 1152;
         game.scale.refresh();
-
         this.game.load.text('dictionary', 'assets/dictionary.txt');
         this.game.load.image('background', 'assets/img/background3.png');
         this.game.load.image('a', 'assets/img/drops/a.png');
@@ -68,6 +59,7 @@ states.MainMenu.prototype = {
         this.game.load.image('playagain', 'assets/img/clouds4nightz/wordcloudbuttons-03.png');
         this.game.load.image('clouds', 'assets/img/clouds4nightz/wordcloudclouds-02.png');
         this.game.load.audio('theme', 'assets/audio/theme.mp3');
+        this.game.load.audio('theme2', 'assets/audio/theme2.mp3');
         this.game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
         this.game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
         this.game.load.audio('correct', 'assets/audio/correct.wav');
@@ -78,14 +70,37 @@ states.MainMenu.prototype = {
         this.game.load.image('grass4',"assets/img/grass4dayz/wordcloudgrass6-01.png");
         this.game.load.image('grass5',"assets/img/grass4dayz/wordcloudgrass-01.png");
 
+        loadingText = game.add.text(game.world.centerX, game.world.centerY, 'Loading...', {
+            font: '32px Arial',
+            fill: '#FFF'
+        });
+        loadingText.anchor.setTo(0.5, 0.5);
 
-        console.log('loaded sprites');
+        this.game.load.start();
+        this.game.load.onFileComplete.add(this.fileComplete, this);
+        this.game.load.onLoadComplete.add(this.loadComplete, this);
+
     },
     create: function() {
-        //background
+        game.stage.backgroundColor = '#000';
+        //Get scores from Parse.com
+        fetchScores();
+    },
+    fileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
+        loadingText.setText("Loading: " + progress + "% - " + totalLoaded + " out of " + totalFiles);
+    },
+    loadComplete: function() {
+        this.game.state.start('MainMenu');
+    }
+};
+
+//Main Menu State
+states.MainMenu.prototype = {
+    create: function() {
+        //Add background to the game
         background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
         
-        //Game audio
+        //Add Game audio
         keyPressFX = game.add.audio('keyPress');
         buttonClickFX = game.add.audio('buttonClick');
         correctFX = game.add.audio('correct');
@@ -93,45 +108,47 @@ states.MainMenu.prototype = {
 
         buttonClickFX.addMarker('startButton', 0, 5);
         buttonClickFX.addMarker('leaderButton', 0, 5);
-        //buttonClickFX.addMarker('replay', 0, 5);
 
         //Start the game by clicking this button
         var startButton = this.game.add.button(game.world.centerX, game.world.centerY - 100, "start", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
+        //Go to leader boards by clicking this button
         var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 100, "leaderboard", this.LeaderBoard, this);
         leaderButton.anchor.setTo(0.5, 0.5);
         leaderButton.scale.set(0.2, 0.2);
-        //makeButton('leaderboard', game.world.centerX - 85, game.world.centerY + 60);
+
         playBackground();
     },
     startGame: function() {
         buttonClickFX.play('startButton', 0);
         this.game.state.start('GameState');
     },
-    
     LeaderBoard: function() {
         buttonClickFX.play('startButton', 0);
         this.game.state.start('LeaderBoard');
     }
 };
 
+//Leaderboard State
 states.LeaderBoard.prototype = {
     create: function() {
         var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", this.LeaderBoard, this);
-        background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
-        //var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "start", this.startGame, this);
-        //startButton.anchor.setTo(0.5, 0.5);
-        //startButton.scale.set(0.2, 0.2);
 
+        background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
+
+        //hit this button to play the game again
         var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "playagain", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        fetchScores();
+        //Show scores on screen
+        renderScores();
     },
     startGame: function() {
+        gameOverState = false;
+        newHighScore = false;
         score = 0;
         keyPressFX = game.add.audio('keyPress');
         buttonClickFX = game.add.audio('buttonClick');
@@ -140,15 +157,40 @@ states.LeaderBoard.prototype = {
     }
 };
 
+//Game over state
 states.GameOver.prototype = {
     create: function() {
         background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
+
+        game.input.keyboard.addCallbacks(this, null, null, keyPress);
+
+        this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
+        this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+        game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
+
         var gameOverText;
         gameOverText = game.add.text(game.world.centerX, game.world.centerY - 100, "GAME OVER");
         gameOverText.anchor.setTo(0.5, 0.5);
         var yourScore;
-        yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
+        yourScore = game.add.text(game.world.centerX, game.world.centerY - 50, "Your score: " + score);
         yourScore.anchor.setTo(0.5, 0.5);
+        if (players[9] == undefined || score > players[9].get('score')) {
+            newHighScore = true;
+            var highScoreText;
+            highScoreText = game.add.text(game.world.centerX, game.world.centerY - 10, 'You got a highscore!', {
+                font: '24px Arial'
+            });
+            highScoreText.anchor.setTo(0.5, 0.5);
+            var newHighScoreText;
+            newHighScoreText = game.add.text(game.world.centerX, game.world.centerY + 25, "Type your name and hit enter to add it to the Leaderboards!", {
+                font: '18px Arial'
+            });
+            newHighScoreText.anchor.setTo(0.5, 0.5);
+
+            playerName = game.add.text(game.world.centerX + 5, 575, "");
+            playerName.anchor.setTo(0.5, 0.5);
+
+        }
 
         //Start the game by clicking this button
         var startButton = this.game.add.button(game.world.centerX / 2, game.world.centerY + 100, "playagain", this.startGame, this);
@@ -159,7 +201,22 @@ states.GameOver.prototype = {
         leaderBoard.anchor.setTo(0.5, 0.5);
         leaderBoard.scale.set(0.2, 0.2);
     },
+    update: function() {
+        game.debug.geom(textboxlinetop, '#000');
+        game.debug.geom(textboxlinebottom, '#000');
+        game.debug.geom(textboxlineleft, '#000');
+        game.debug.geom(textboxlineright, '#000');
+
+        if (newHighScore && gameOverState) {
+            this.deleteKey.onDown.add(deleteText, this);
+            this.enterKey.onDown.add(sendScores, this);
+
+        }
+        scoreText.setText("Score: " + score);
+    },
     startGame: function() {
+        gameOverState = false;
+        newHighScore = false;
         score = 0;
         keyPressFX = game.add.audio('keyPress');
         buttonClickFX = game.add.audio('buttonClick');
@@ -188,15 +245,20 @@ var textboxlineright;
 var startTyping;
 var scoreText;
 var score = 0;
-var losingBar;
 var howToPlay;
 var wrongWord;
 var correctWord;
 var dropMap = new Map();
+var playerName;
+var gameOverState;
+var newHighScore = false;
+var loadingText;
 
 
 //Create objects and add them to the game world
 function create() {
+    //when you start a game this should be false
+    gameOverState = false;
     //Clear drop map after every playthrough
     dropMap.clear();
     //fix blurry text
@@ -231,7 +293,6 @@ function create() {
     textInput.setText(textInput.text);
     textInput.anchor.setTo(0.5, 0.5);
 
-
     howToPlay = game.add.text(game.world.centerX, game.world.centerY, "Don't let the drops reach the bottom!", {
         font: '32px Arial',
         fill: '#000',
@@ -241,12 +302,11 @@ function create() {
 
     game.time.events.add(Phaser.Timer.SECOND, fadeText, this);
 
-    scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 300, "score: " + score, {
+    scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 255, "score: " + score, {
         font: '28px Arial',
         fill: '#000',
         align: 'center'
     });
-
 
     //Keys for backspace and enter
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
@@ -255,7 +315,7 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 1.5;
+    game.physics.arcade.gravity.y = 8;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
@@ -270,18 +330,17 @@ function update() {
     game.debug.geom(textboxlinebottom, '#000');
     game.debug.geom(textboxlineleft, '#000');
     game.debug.geom(textboxlineright, '#000');
-    game.debug.geom(losingBar, '#F00');
 
-    //Delete a letter from the word being typed.
-    if (this.deleteKey.isDown) {
+    if (!gameOverState) {
+        //Delete a letter from the word being typed.
+
         this.deleteKey.onDown.add(deleteText, this);
+        this.enterKey.onDown.add(submitText, this);
+        scoreText.setText("Score: " + score);
     }
-    if (this.enterKey.isDown) {
-        this.enterKey.onDown.add(submitText, this)
-    }
-    scoreText.setText("Score: " + score);
 }
 
+//Fade the text at the start of the game
 function fadeText() {
     function fade() {
         game.add.tween(startTyping).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
@@ -297,98 +356,126 @@ function fadeText() {
     game.time.events.add(Phaser.Timer.SECOND, fade, this);
 }
 
-function fadeUi() {
-    game.add.tween(wrongWord).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None, true);
-}
-
-//function fadeTexts(string, time) {
-//    game.add.tween(string).to ( {alpha: 0}, time, Phaser.Easing.Linear.None, true);
-//}
-
 //Captures the keypress of the player and appends the character to a string
 function keyPress(char) {
-    textInput.text += char;
-    keyPressFX.play("", 0, 1);
+    if (gameOverState && newHighScore) {
+        playerName.text += char;
+        keyPressFX.play("", 0, 1);
+    } else {
+        textInput.text += char;
+        keyPressFX.play("", 0, 1);
+    }
 }
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
-    console.log(dropMap);
-    if (checkIfOnScreen(textInput.text) && textInput.text.length > 0 && dictionary.indexOf(textInput.text) >= 0) {
-        console.log('onscreen');
-        score += textInput.text.length * 10;
+    if(dictionary.indexOf(textInput.text) < 0) {
+        wrongWord = game.add.text(game.world.centerX, game.world.centerY + 170, 'Not a word!', {
+            fill: 'red'
+        });
+        wrongWord.anchor.setTo(0.5, 0.5);
+        wrongFX.play("", 0, 1);
+    } else if (checkIfOnScreen(textInput.text) && textInput.text.length > 0 && dictionary.indexOf(textInput.text) >= 0) {
+        var points = 0;
+        if (textInput.text.length > 6) {
+            points = textInput.text.length * 20;
+            score += points;
+        } else {
+            points = textInput.text.length * 10;
+            score += points;
+        }
         destroyDrops(textInput.text);
         textInput.setText("");
         correctFX.play("", 0, 1);
+        correctWord = game.add.text(game.world.centerX, game.world.centerY + 170, 'Nice job!', {
+            fill: 'green'
+        });
+        correctWord.anchor.setTo(0.5, 0.5);
+        game.add.tween(correctWord).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+        var addingToScore = game.add.text(game.world.centerX, game.world.centerY, "+" + points, {
+            fill: 'green'
+        });
+        addingToScore.anchor.setTo(0.5, 0.5);
+        game.add.tween(addingToScore).to( { alpha: 0} , 2000, Phaser.Easing.Linear.None, true);
     } else {
-        console.log('notonscreen')
-        //UI to show the word is not in the dictionary
+        //UI to show errors
         var rand = getRandomInt(1, 8);
         if (rand === 1) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Try again!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 2) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'False!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 3) {
             wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Nope!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 4) {
                 wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'Try again!', {
                     font: '24px Arial',
-                    fill: '#000',
+                    fill: 'red',
                     align: 'center'
                 });
         } else if (rand === 5) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Nope!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 6) {
             wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'False!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 7) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'Try again!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else {
             wrongWord = game.add.text(game.world.centerX + getRandomInt(50, 100), game.world.centerY +  getRandomInt(100, 200), 'False!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         }
-        game.time.events.add(Phaser.Timer.SECOND, fadeUi, this);
         wrongFX.play("", 0, 1);
-        textInput.setText("");
     }
+    game.add.tween(wrongWord).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+    textInput.setText("");
 }
 
 //Allow user to use backspace to delete their typed word
 function deleteText() {
-    textInput.text = textInput.text.substring(0, textInput.text.length - 1);
+    if(gameOverState) {
+        playerName.text = playerName.text.substring(0, playerName.text.length - 1);
+    } else {
+        textInput.text = textInput.text.substring(0, textInput.text.length - 1);
+    }
 }
 
 //Play the background music
 function playBackground() {
-    music = game.add.audio('theme');
-    music.autoplay = true;
-    music.play("", 0, 1, true);
+    var int = getRandomInt(0, 2);
+    if (int === 1) {
+        music = game.add.audio('theme');
+        music.autoplay = true;
+        music.play("", 0, 1, true);
+    } else {
+        music = game.add.audio('theme2');
+        music.autoplay = true;
+        music.play("", 0, 1, true);
+    }
 }
 
 //Make buttons function for the game
@@ -476,57 +563,53 @@ Drop = function(game, char) {
     this.game.physics.arcade.enableBody(this);
 };
 
-//calculates the distance between two points
-function distance(x1, y1, x2, y2) {
-    var x = (x2 - x1) * (x2 - x1);
-    var y = (y2 - y1) * (y2 - y1);
-    return Math.sqrt(x + y);
-}
-
-//Returns true if two drops are overlapping within 30 pixels of each other.
-function isColliding(drop1, drop2) {
-    return distance(drop1.x, drop1.y, drop2.x, drop2.y) <= 30;
-}
-
+//Changes the gameover state to true and launches the gameover state
 function gameOver() {
+    gameOverState = true;
     this.game.state.start('GameOver');
-    var yourScore;
-    yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
-    console.log('gameover');
-    //sendScores();
 }
 
-// FIREBASE SEND
-
+// Parse SEND
 function sendScores() {
-    var player = new Player();
-    player.set('score', score);
-    //player.set('name', playerName);
-    player.save();
-    console.log("sending");
+    if (playerName.text != "") {
+        this.game.state.start('LeaderBoard');
+        var player = new Player();
+        player.set('score', score);
+        player.set('name', playerName.text);
+        player.save();
+    }
 }
 
-// FIRE BASEFETCH
 function displayError(err) {
     console.log(err);
 }
 
+// Parse fetch
 function fetchScores() {
     playerQuery.find().then(onData, displayError);
 }
 
 function onData(result) {
     players = result;
-    renderScores();
 }
 
-var style = { font: "32px Arial", fill: "#000000", wordWrap: true, align: "center" };
+var style = { font: "32px Arial", fill: "#000000", align: "center" };
 
 function renderScores() {
     var leaderboardText;
+    var noScores;
     for (var i = 0; i < 10; i++) {
-        //player[i].get('name') +
-        leaderboardText = game.add.text(game.world.centerX - 110, game.world.centerY - 220 + (45 * i), '..........' + players[i].get('score') , style);
+        if (players[0] == undefined) {
+            noScores = game.add.text(game.world.centerX, game.world.centerY, "There are no highscores!", {
+                font: '48px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+            noScores.anchor.setTo(0.5, 0.5);
+        } else {
+            leaderboardText = game.add.text(game.world.centerX, game.world.centerY - 220 + (45 * i), players[i].get('name') + '..........' + players[i].get('score') , style);
+            leaderboardText.anchor.setTo(0.5, 0.5);
+        }
     }
 }
 
@@ -537,10 +620,9 @@ Drop.prototype.update = function() {
     this.events.onOutOfBounds.add(gameOver, this);
 };
 
-
-
 game.state.add('GameState', GameState);
 game.state.add('MainMenu', states.MainMenu);
 game.state.add('GameOver', states.GameOver);
 game.state.add('LeaderBoard', states.LeaderBoard);
-game.state.start('MainMenu');
+game.state.add('Loading', states.Loading);
+game.state.start('Loading');
