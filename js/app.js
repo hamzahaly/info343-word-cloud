@@ -220,7 +220,8 @@ function create() {
     textboxlineleft = new Phaser.Line(game.world.centerX / 2, game.world.centerY + 200, game.world.centerX / 2, game.world.centerY + 250);
     textboxlineright = new Phaser.Line(game.world.centerX * 1.5, game.world.centerY + 200, game.world.centerX * 1.5, game.world.centerY + 250);
 
-    input.focus();
+    document.getElementById("keyboard").focus();
+
     //Retrieve keyboard presses from the player
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
     textInput = game.add.text(game.world.centerX + 5, 575, "", {
@@ -537,9 +538,8 @@ Drop.prototype.update = function() {
     this.events.onOutOfBounds.add(gameOver, this);
 };
 
-var input = document.createElement("input");
-input.type = "text";
-input.style.cssText = "position:absolute; left:-1px; top: -1px; width:1px; height:1px; opacity:0";
+
+//input.style.cssText = "position:absolute; left:-1px; top: -1px; width:1px; height:1px; opacity:0";
 
 game.state.add('GameState', GameState);
 game.state.add('MainMenu', states.MainMenu);
