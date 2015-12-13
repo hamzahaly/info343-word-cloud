@@ -315,7 +315,7 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 8;
+    game.physics.arcade.gravity.y = 2;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
