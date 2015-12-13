@@ -29,8 +29,8 @@ states.MainMenu.prototype = {
         //game.scale.windowConstraints.bottom = "visual";
         //Phaser.ScaleManager.SHOW_ALL = 2;
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        this.scale.minWidth = 320;
-        this.scale.minHeight = 480;
+        this.scale.minWidth = 325;
+        this.scale.minHeight = 450;
         this.scale.maxWidth = 768;
         this.scale.maxHeight = 1152;
         game.scale.refresh();
