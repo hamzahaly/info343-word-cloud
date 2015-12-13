@@ -220,7 +220,6 @@ function create() {
     textboxlineleft = new Phaser.Line(game.world.centerX / 2, game.world.centerY + 200, game.world.centerX / 2, game.world.centerY + 250);
     textboxlineright = new Phaser.Line(game.world.centerX * 1.5, game.world.centerY + 200, game.world.centerX * 1.5, game.world.centerY + 250);
 
-    document.getElementById("keyboard").focus();
 
     //Retrieve keyboard presses from the player
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
@@ -539,7 +538,6 @@ Drop.prototype.update = function() {
 };
 
 
-//input.style.cssText = "position:absolute; left:-1px; top: -1px; width:1px; height:1px; opacity:0";
 
 game.state.add('GameState', GameState);
 game.state.add('MainMenu', states.MainMenu);
