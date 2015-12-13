@@ -130,6 +130,8 @@ states.LeaderBoard.prototype = {
         fetchScores();
     },
     startGame: function() {
+        gameOverState = false;
+        newHighScore = false;
         score = 0;
         keyPressFX = game.add.audio('keyPress');
         buttonClickFX = game.add.audio('buttonClick');
@@ -154,9 +156,8 @@ states.GameOver.prototype = {
         var yourScore;
         yourScore = game.add.text(game.world.centerX, game.world.centerY - 50, "Your score: " + score);
         yourScore.anchor.setTo(0.5, 0.5);
-        if (players[10] == undefined || score > players[10].get('score')) {
+        if (players[9] == undefined || score > players[9].get('score')) {
             newHighScore = true;
-            console.log('inside');
             var highScoreText;
             highScoreText = game.add.text(game.world.centerX, game.world.centerY - 10, 'You got a highscore!', {
                 font: '24px Arial'
@@ -190,23 +191,16 @@ states.GameOver.prototype = {
         game.debug.geom(textboxlineright, '#000');
 
         if (newHighScore && gameOverState) {
-            if (playerName.text == "") {
-
-            } else {
-                this.enterKey.onDown.add(sendScores, this);
-            }
             //Delete a letter from the word being typed.
-            if (this.deleteKey.isDown) {
-                console.log('deleting');
-                this.deleteKey.onDown.add(deleteText, this);
-            }
-            if (this.enterKey.isDown) {
-                this.enterKey.onDown.add(this.LeaderBoard, this)
-            }
+            this.deleteKey.onDown.add(deleteText, this);
+            this.enterKey.onDown.add(sendScores, this);
+
         }
         scoreText.setText("Score: " + score);
     },
     startGame: function() {
+        gameOverState = false;
+        newHighScore = false;
         score = 0;
         keyPressFX = game.add.audio('keyPress');
         buttonClickFX = game.add.audio('buttonClick');
@@ -323,12 +317,9 @@ function update() {
 
     if (!gameOverState) {
         //Delete a letter from the word being typed.
-        if (this.deleteKey.isDown) {
-            this.deleteKey.onDown.add(deleteText, this);
-        }
-        if (this.enterKey.isDown) {
-            this.enterKey.onDown.add(submitText, this);
-        }
+
+        this.deleteKey.onDown.add(deleteText, this);
+        this.enterKey.onDown.add(submitText, this);
         scoreText.setText("Score: " + score);
     }
 }
@@ -358,9 +349,8 @@ function fadeUi() {
 
 //Captures the keypress of the player and appends the character to a string
 function keyPress(char) {
-    if (gameOverState) {
+    if (gameOverState && newHighScore) {
         playerName.text += char;
-        console.log(playerName.text);
         keyPressFX.play("", 0, 1);
     } else {
         textInput.text += char;
@@ -370,15 +360,12 @@ function keyPress(char) {
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
-    console.log(dropMap);
     if (checkIfOnScreen(textInput.text) && textInput.text.length > 0 && dictionary.indexOf(textInput.text) >= 0) {
-        console.log('onscreen');
         score += textInput.text.length * 10;
         destroyDrops(textInput.text);
         textInput.setText("");
         correctFX.play("", 0, 1);
     } else {
-        console.log('notonscreen');
         //UI to show the word is not in the dictionary
         var rand = getRandomInt(1, 8);
         if (rand === 1) {
@@ -544,33 +531,21 @@ Drop = function(game, char) {
     this.game.physics.arcade.enableBody(this);
 };
 
-//calculates the distance between two points
-function distance(x1, y1, x2, y2) {
-    var x = (x2 - x1) * (x2 - x1);
-    var y = (y2 - y1) * (y2 - y1);
-    return Math.sqrt(x + y);
-}
-
-//Returns true if two drops are overlapping within 30 pixels of each other.
-function isColliding(drop1, drop2) {
-    return distance(drop1.x, drop1.y, drop2.x, drop2.y) <= 30;
-}
-
 function gameOver() {
     gameOverState = true;
     this.game.state.start('GameOver');
-    var yourScore;
-    yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
 }
 
 // Parse SEND
 function sendScores() {
-    this.game.state.start('LeaderBoard');
-    var player = new Player();
-    player.set('score', score);
-    player.set('name', playerName.text);
-    player.save();
-    console.log("sending");
+    if (playerName.text != "") {
+        console.log("sending");
+        this.game.state.start('LeaderBoard');
+        var player = new Player();
+        player.set('score', score);
+        player.set('name', playerName.text);
+        player.save();
+    }
 }
 
 function displayError(err) {
@@ -601,7 +576,6 @@ function renderScores() {
             });
             noScores.anchor.setTo(0.5, 0.5);
         } else {
-            //player[i].get('name') +
             leaderboardText = game.add.text(game.world.centerX, game.world.centerY - 220 + (45 * i), players[i].get('name') + '..........' + players[i].get('score') , style);
             leaderboardText.anchor.setTo(0.5, 0.5);
         }
@@ -614,8 +588,6 @@ Drop.prototype.update = function() {
     this.checkWorldBounds = true;
     this.events.onOutOfBounds.add(gameOver, this);
 };
-
-
 
 game.state.add('GameState', GameState);
 game.state.add('MainMenu', states.MainMenu);
