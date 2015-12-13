@@ -118,6 +118,7 @@ states.MainMenu.prototype = {
         leaderButton.scale.set(0.2, 0.2);
 
         playBackground();
+        fetchScores();
     },
     startGame: function() {
         buttonClickFX.play('startButton', 0);
@@ -143,6 +144,8 @@ states.LeaderBoard.prototype = {
 
         //Retrieve the scoers from Parse.com
         fetchScores();
+        //Show scores on screen
+        renderScores();
     },
     startGame: function() {
         gameOverState = false;
@@ -173,6 +176,7 @@ states.GameOver.prototype = {
         yourScore = game.add.text(game.world.centerX, game.world.centerY - 50, "Your score: " + score);
         yourScore.anchor.setTo(0.5, 0.5);
         if (players[9] == undefined || score > players[9].get('score')) {
+            console.log(players[9]);
             newHighScore = true;
             var highScoreText;
             highScoreText = game.add.text(game.world.centerX, game.world.centerY - 10, 'You got a highscore!', {
@@ -354,15 +358,6 @@ function fadeText() {
     game.time.events.add(Phaser.Timer.SECOND, fade, this);
 }
 
-//Fade the error and confirm messages
-function fadeUi() {
-    game.add.tween(wrongWord).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None, true);
-}
-
-//function fadeTexts(string, time) {
-//    game.add.tween(string).to ( {alpha: 0}, time, Phaser.Easing.Linear.None, true);
-//}
-
 //Captures the keypress of the player and appends the character to a string
 function keyPress(char) {
     if (gameOverState && newHighScore) {
@@ -376,66 +371,89 @@ function keyPress(char) {
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
-    if (checkIfOnScreen(textInput.text) && textInput.text.length > 0 && dictionary.indexOf(textInput.text) >= 0) {
-        score += textInput.text.length * 10;
+    if(dictionary.indexOf(textInput.text) < 0) {
+        wrongWord = game.add.text(game.world.centerX, game.world.centerY + 170, 'Not a word!', {
+            fill: 'red'
+        });
+        wrongWord.anchor.setTo(0.5, 0.5);
+        wrongFX.play("", 0, 1);
+    } else if (checkIfOnScreen(textInput.text) && textInput.text.length > 0 && dictionary.indexOf(textInput.text) >= 0) {
+        var points = 0;
+        if (textInput.text.length > 6) {
+            points = textInput.text.length * 20;
+            score += points;
+        } else {
+            points = textInput.text.length * 10;
+            score += points;
+        }
         destroyDrops(textInput.text);
         textInput.setText("");
         correctFX.play("", 0, 1);
+        correctWord = game.add.text(game.world.centerX, game.world.centerY + 170, 'Nice job!', {
+            fill: 'green'
+        });
+        correctWord.anchor.setTo(0.5, 0.5);
+        game.add.tween(correctWord).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+        var addingToScore = game.add.text(game.world.centerX, game.world.centerY, "+" + points, {
+            fill: 'green'
+        });
+        addingToScore.anchor.setTo(0.5, 0.5);
+        game.add.tween(addingToScore).to( { alpha: 0} , 2000, Phaser.Easing.Linear.None, true);
     } else {
         //UI to show errors
         var rand = getRandomInt(1, 8);
         if (rand === 1) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Try again!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 2) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'False!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 3) {
             wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Nope!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 4) {
                 wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'Try again!', {
                     font: '24px Arial',
-                    fill: '#000',
+                    fill: 'red',
                     align: 'center'
                 });
         } else if (rand === 5) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'Nope!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 6) {
             wrongWord = game.add.text(game.world.centerX + getRandomInt(100, 200), game.world.centerY + getRandomInt(50, 100), 'False!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else if (rand === 7) {
             wrongWord = game.add.text(game.world.centerX - getRandomInt(100, 200), game.world.centerY - getRandomInt(50, 100), 'Try again!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         } else {
             wrongWord = game.add.text(game.world.centerX + getRandomInt(50, 100), game.world.centerY +  getRandomInt(100, 200), 'False!', {
                 font: '24px Arial',
-                fill: '#000',
+                fill: 'red',
                 align: 'center'
             });
         }
-        game.time.events.add(Phaser.Timer.SECOND, fadeUi, this);
         wrongFX.play("", 0, 1);
     }
+    game.add.tween(wrongWord).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
     textInput.setText("");
 }
 
@@ -550,6 +568,7 @@ Drop = function(game, char) {
 //Changes the gameover state to true and launches the gameover state
 function gameOver() {
     gameOverState = true;
+    fetchScores();
     this.game.state.start('GameOver');
 }
 
@@ -576,7 +595,6 @@ function fetchScores() {
 
 function onData(result) {
     players = result;
-    renderScores();
 }
 
 var style = { font: "32px Arial", fill: "#000000", align: "center" };
