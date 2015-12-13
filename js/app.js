@@ -3,6 +3,9 @@
 Parse.initialize("AZFr3gs8vJnsV8ZFqn4SbYTz4tStqSDdYpLR3VLL", "MCOZMomXavVVV27Rg5m4rFnc4IrebFw74aUOQhWw");
 
 var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
+//game = new Phaser.Game(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, Phaser.CANVAS, 'gameArea');
+
+
 
 var Player = Parse.Object.extend('Player');
 var playerQuery = new Parse.Query(Player);
@@ -16,9 +19,22 @@ states.GameOver = function() {};
 states.LeaderBoard = function() {};
 
 
+
 states.MainMenu.prototype = {
     //Preload all assets into the game
     preload: function() {
+        //this.game.stage.scaleMode = Phaser.ScaleManager.SHOW_ALL; //resize your window to see the stage resize too
+        ////this.game.stage.scale.setShowAll();
+        ////this.game.stage.scale.refresh();
+        //game.scale.windowConstraints.bottom = "visual";
+        //Phaser.ScaleManager.SHOW_ALL = 2;
+        this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        this.scale.minWidth = 320;
+        this.scale.minHeight = 480;
+        this.scale.maxWidth = 768;
+        this.scale.maxHeight = 1152;
+        game.scale.refresh();
+
         this.game.load.text('dictionary', 'assets/dictionary.txt');
         this.game.load.image('background', 'assets/img/background3.png');
         this.game.load.image('a', 'assets/img/drops/a.png');
@@ -62,11 +78,12 @@ states.MainMenu.prototype = {
         this.game.load.image('grass4',"assets/img/grass4dayz/wordcloudgrass6-01.png");
         this.game.load.image('grass5',"assets/img/grass4dayz/wordcloudgrass-01.png");
 
+
         console.log('loaded sprites');
     },
     create: function() {
         //background
-        background = game.add.tileSprite(0, 0, 650, 700, "background");
+        background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
         
         //Game audio
         keyPressFX = game.add.audio('keyPress');
@@ -103,7 +120,7 @@ states.MainMenu.prototype = {
 states.LeaderBoard.prototype = {
     create: function() {
         var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", this.LeaderBoard, this);
-        background = game.add.tileSprite(0, 0, 650, 700, "background");
+        background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
         //var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "start", this.startGame, this);
         //startButton.anchor.setTo(0.5, 0.5);
         //startButton.scale.set(0.2, 0.2);
@@ -125,7 +142,7 @@ states.LeaderBoard.prototype = {
 
 states.GameOver.prototype = {
     create: function() {
-        background = game.add.tileSprite(0, 0, 650, 700, "background");
+        background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
         var gameOverText;
         gameOverText = game.add.text(game.world.centerX, game.world.centerY - 100, "GAME OVER");
         gameOverText.anchor.setTo(0.5, 0.5);
@@ -189,7 +206,7 @@ function create() {
     dictionary = this.game.cache.getText('dictionary').split(/\s+/);
 
     //Add a background to the game.
-    background = game.add.tileSprite(0, 0, 650, 700, "background");
+    background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
 
     //Allow the user to type words into the game.
     textInput = game.make.bitmapData(800, 600);
@@ -519,6 +536,7 @@ Drop.prototype.update = function() {
     this.checkWorldBounds = true;
     this.events.onOutOfBounds.add(gameOver, this);
 };
+
 
 game.state.add('GameState', GameState);
 game.state.add('MainMenu', states.MainMenu);
