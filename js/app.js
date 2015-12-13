@@ -18,24 +18,20 @@ states.LeaderBoard = function() {};
 
 states.Loading.prototype = {
     preload: function() {
-        
-    },
-    create: function() {
-        if (this.cache.isSoundDecoded('theme') && this.cache.isSoundDecoded('theme2')) {
-
-        }
-    }
-};
-
-states.MainMenu.prototype = {
-    //Preload all assets into the game
-    preload: function() {
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.scale.minWidth = 325;
         this.scale.minHeight = 450;
         this.scale.maxWidth = 768;
         this.scale.maxHeight = 1152;
         game.scale.refresh();
+    },
+    create: function() {
+        game.stage.backgroundColor = '#000';
+        loadingText = game.add.text(game.world.centerX, game.world.centerY, 'Loading...', {
+            font: '32px Arial',
+            fill: '#FFF'
+        });
+        loadingText.anchor.setTo(0.5, 0.5);
 
         this.game.load.text('dictionary', 'assets/dictionary.txt');
         this.game.load.image('background', 'assets/img/background3.png');
@@ -80,7 +76,25 @@ states.MainMenu.prototype = {
         this.game.load.image('grass3',"assets/img/grass4dayz/wordcloudgrass4-01.png");
         this.game.load.image('grass4',"assets/img/grass4dayz/wordcloudgrass6-01.png");
         this.game.load.image('grass5',"assets/img/grass4dayz/wordcloudgrass-01.png");
+
+        this.game.load.start();
+
+        this.game.load.onLoadStart.add(this.loadStart, this);
+        this.game.load.onFileComplete.add(this.fileComplete, this);
     },
+    fileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
+        loadingText.setText("File Complete: " + progress + "% - " + totalLoaded + " out of " + totalFiles);
+        //if (this.cache.isSoundDecoded('theme') && this.cache.isSoundDecoded('theme2')) {
+        //    this.game.state.start('MainMenu')
+        //}
+        this.game.state.start('MainMenu');
+    },
+    loadStart: function() {
+        console.log('load start');
+    }
+};
+
+states.MainMenu.prototype = {
     create: function() {
         //background
         background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
@@ -103,7 +117,7 @@ states.MainMenu.prototype = {
         var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 100, "leaderboard", this.LeaderBoard, this);
         leaderButton.anchor.setTo(0.5, 0.5);
         leaderButton.scale.set(0.2, 0.2);
-        //makeButton('leaderboard', game.world.centerX - 85, game.world.centerY + 60);
+
         playBackground();
     },
     startGame: function() {
@@ -235,6 +249,7 @@ var dropMap = new Map();
 var playerName;
 var gameOverState;
 var newHighScore = false;
+var loadingText;
 
 
 //Create objects and add them to the game world
@@ -593,4 +608,4 @@ game.state.add('MainMenu', states.MainMenu);
 game.state.add('GameOver', states.GameOver);
 game.state.add('LeaderBoard', states.LeaderBoard);
 game.state.add('Loading', states.Loading);
-game.state.start('MainMenu');
+game.state.start('Loading');
