@@ -369,13 +369,13 @@ function keyPress(char) {
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
-    if(dictionary.indexOf(textInput.text) < 0) {
+    if(dictionary.indexOf(textInput.text.toLowerCase()) < 0) {
         wrongWord = game.add.text(game.world.centerX, game.world.centerY + 170, 'Not a word!', {
             fill: 'red'
         });
         wrongWord.anchor.setTo(0.5, 0.5);
         wrongFX.play("", 0, 1);
-    } else if (checkIfOnScreen(textInput.text) && textInput.text.length > 0 && dictionary.indexOf(textInput.text) >= 0) {
+    } else if (checkIfOnScreen(textInput.text.toLowerCase()) && textInput.text.length > 0 && dictionary.indexOf(textInput.text.toLowerCase()) >= 0) {
         var points = 0;
         if (textInput.text.length > 6) {
             points = textInput.text.length * 20;
@@ -384,7 +384,7 @@ function submitText() {
             points = textInput.text.length * 10;
             score += points;
         }
-        destroyDrops(textInput.text);
+        destroyDrops(textInput.text.toLowerCase());
         textInput.setText("");
         correctFX.play("", 0, 1);
         correctWord = game.add.text(game.world.centerX, game.world.centerY + 170, 'Nice job!', {
