@@ -83,6 +83,8 @@ states.Loading.prototype = {
     },
     create: function() {
         game.stage.backgroundColor = '#000';
+        //Get scores from Parse.com
+        fetchScores();
     },
     fileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
         loadingText.setText("Loading: " + progress + "% - " + totalLoaded + " out of " + totalFiles);
@@ -118,7 +120,6 @@ states.MainMenu.prototype = {
         leaderButton.scale.set(0.2, 0.2);
 
         playBackground();
-        fetchScores();
     },
     startGame: function() {
         buttonClickFX.play('startButton', 0);
@@ -142,8 +143,6 @@ states.LeaderBoard.prototype = {
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
-        //Retrieve the scoers from Parse.com
-        fetchScores();
         //Show scores on screen
         renderScores();
     },
@@ -317,7 +316,7 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 30;
+    game.physics.arcade.gravity.y = 8;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
@@ -568,7 +567,6 @@ Drop = function(game, char) {
 //Changes the gameover state to true and launches the gameover state
 function gameOver() {
     gameOverState = true;
-    fetchScores();
     this.game.state.start('GameOver');
 }
 
