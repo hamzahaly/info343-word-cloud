@@ -52,6 +52,7 @@ states.MainMenu.prototype = {
         this.game.load.image('playagain', 'assets/img/clouds4nightz/wordcloudbuttons-03.png');
         this.game.load.image('clouds', 'assets/img/clouds4nightz/wordcloudclouds-02.png');
         this.game.load.audio('theme', 'assets/audio/theme.mp3');
+        this.game.load.audio('theme2', 'assets/audio/theme2.mp3');
         this.game.load.audio('buttonClick', 'assets/audio/buttonClick.mp3');
         this.game.load.audio('keyPress', 'assets/audio/keyPress.mp3');
         this.game.load.audio('correct', 'assets/audio/correct.wav');
@@ -61,8 +62,6 @@ states.MainMenu.prototype = {
         this.game.load.image('grass3',"assets/img/grass4dayz/wordcloudgrass4-01.png");
         this.game.load.image('grass4',"assets/img/grass4dayz/wordcloudgrass6-01.png");
         this.game.load.image('grass5',"assets/img/grass4dayz/wordcloudgrass-01.png");
-
-        console.log('loaded sprites');
     },
     create: function() {
         //background
@@ -90,8 +89,10 @@ states.MainMenu.prototype = {
         playBackground();
     },
     startGame: function() {
-        buttonClickFX.play('startButton', 0);
-        this.game.state.start('GameState');
+        if (this.cache.isSoundDecoded('theme') && this.cache.isSoundDecoded('theme2')) {
+            buttonClickFX.play('startButton', 0);
+            this.game.state.start('GameState');
+        }
     },
     
     LeaderBoard: function() {
@@ -104,9 +105,6 @@ states.LeaderBoard.prototype = {
     create: function() {
         var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", this.LeaderBoard, this);
         background = game.add.tileSprite(0, 0, 650, 700, "background");
-        //var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "start", this.startGame, this);
-        //startButton.anchor.setTo(0.5, 0.5);
-        //startButton.scale.set(0.2, 0.2);
 
         var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "playagain", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
@@ -126,12 +124,36 @@ states.LeaderBoard.prototype = {
 states.GameOver.prototype = {
     create: function() {
         background = game.add.tileSprite(0, 0, 650, 700, "background");
+        game.input.keyboard.addCallbacks(this, null, null, keyPress);
+
+        this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
+        this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+        game.input.keyboard.addKeyCapture([ Phaser.Keyboard.BACKSPACE, Phaser.Keyboard.ENTER ]);
+
         var gameOverText;
         gameOverText = game.add.text(game.world.centerX, game.world.centerY - 100, "GAME OVER");
         gameOverText.anchor.setTo(0.5, 0.5);
         var yourScore;
-        yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
+        yourScore = game.add.text(game.world.centerX, game.world.centerY - 50, "Your score: " + score);
         yourScore.anchor.setTo(0.5, 0.5);
+        if (players[10] == undefined || score > players[10].get('score')) {
+            newHighScore = true;
+            console.log('inside');
+            var highScoreText;
+            highScoreText = game.add.text(game.world.centerX, game.world.centerY - 10, 'You got a highscore!', {
+                font: '24px Arial'
+            });
+            highScoreText.anchor.setTo(0.5, 0.5);
+            var newHighScoreText;
+            newHighScoreText = game.add.text(game.world.centerX, game.world.centerY + 25, "Type your name and hit enter to add it to the Leaderboards!", {
+                font: '18px Arial'
+            });
+            newHighScoreText.anchor.setTo(0.5, 0.5);
+
+            playerName = game.add.text(game.world.centerX + 5, 575, "");
+            playerName.anchor.setTo(0.5, 0.5);
+
+        }
 
         //Start the game by clicking this button
         var startButton = this.game.add.button(game.world.centerX / 2, game.world.centerY + 100, "playagain", this.startGame, this);
@@ -141,6 +163,30 @@ states.GameOver.prototype = {
         var leaderBoard = this.game.add.button(game.world.centerX * 1.5, game.world.centerY + 100, "leaderboard", this.LeaderBoard, this);
         leaderBoard.anchor.setTo(0.5, 0.5);
         leaderBoard.scale.set(0.2, 0.2);
+    },
+    //updates the game
+    update: function() {
+        game.debug.geom(textboxlinetop, '#000');
+        game.debug.geom(textboxlinebottom, '#000');
+        game.debug.geom(textboxlineleft, '#000');
+        game.debug.geom(textboxlineright, '#000');
+
+        if (newHighScore && gameOverState) {
+            if (playerName.text == "") {
+
+            } else {
+                this.enterKey.onDown.add(sendScores, this);
+            }
+            //Delete a letter from the word being typed.
+            if (this.deleteKey.isDown) {
+                console.log('deleting');
+                this.deleteKey.onDown.add(deleteText, this);
+            }
+            if (this.enterKey.isDown) {
+                this.enterKey.onDown.add(this.LeaderBoard, this)
+            }
+        }
+        scoreText.setText("Score: " + score);
     },
     startGame: function() {
         score = 0;
@@ -171,15 +217,19 @@ var textboxlineright;
 var startTyping;
 var scoreText;
 var score = 0;
-var losingBar;
 var howToPlay;
 var wrongWord;
 var correctWord;
 var dropMap = new Map();
+var playerName;
+var gameOverState;
+var newHighScore = false;
 
 
 //Create objects and add them to the game world
 function create() {
+    //when you start a game this should be false
+    gameOverState = false;
     //Clear drop map after every playthrough
     dropMap.clear();
     //fix blurry text
@@ -224,12 +274,11 @@ function create() {
 
     game.time.events.add(Phaser.Timer.SECOND, fadeText, this);
 
-    scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 300, "score: " + score, {
+    scoreText = game.add.text(game.world.centerX + 150, game.world.centerY + 255, "score: " + score, {
         font: '28px Arial',
         fill: '#000',
         align: 'center'
     });
-
 
     //Keys for backspace and enter
     this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
@@ -238,7 +287,7 @@ function create() {
 
     //Adds gravity to the drops
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 1.5;
+    game.physics.arcade.gravity.y = 30;
 
     //creates the drops group that Phaser implements
     drops = game.add.group();
@@ -253,16 +302,17 @@ function update() {
     game.debug.geom(textboxlinebottom, '#000');
     game.debug.geom(textboxlineleft, '#000');
     game.debug.geom(textboxlineright, '#000');
-    game.debug.geom(losingBar, '#F00');
 
-    //Delete a letter from the word being typed.
-    if (this.deleteKey.isDown) {
-        this.deleteKey.onDown.add(deleteText, this);
+    if (!gameOverState) {
+        //Delete a letter from the word being typed.
+        if (this.deleteKey.isDown) {
+            this.deleteKey.onDown.add(deleteText, this);
+        }
+        if (this.enterKey.isDown) {
+            this.enterKey.onDown.add(submitText, this);
+        }
+        scoreText.setText("Score: " + score);
     }
-    if (this.enterKey.isDown) {
-        this.enterKey.onDown.add(submitText, this)
-    }
-    scoreText.setText("Score: " + score);
 }
 
 function fadeText() {
@@ -290,14 +340,18 @@ function fadeUi() {
 
 //Captures the keypress of the player and appends the character to a string
 function keyPress(char) {
-    textInput.text += char;
-    keyPressFX.play("", 0, 1);
+    if (gameOverState) {
+        playerName.text += char;
+        console.log(playerName.text);
+        keyPressFX.play("", 0, 1);
+    } else {
+        textInput.text += char;
+        keyPressFX.play("", 0, 1);
+    }
 }
 
 //When the play presses enter verifies if the word is correct or incorrect
 function submitText() {
-    console.log(dropMap);
-
     if (checkIfOnScreen(textInput.text) && textInput.text.length > 0) {
         if (dictionary.indexOf(textInput.text) > -1) {
             score += textInput.text.length * 10;
@@ -305,7 +359,13 @@ function submitText() {
             textInput.setText("");
             correctFX.play("", 0, 1);
         }
-    } else {
+    } else if (dictionary.indexOf(textInput.text) < 0 && !gameOverState) {
+        wrongWord = game.add.text(game.world.centerX, game.world.centerY, 'Not a word!', {
+            font: '24px Arial',
+            fill: '#000',
+            align: 'center'
+        });
+    } else if (!gameOverState) {
         //UI to show the word is not in the dictionary
         var rand = getRandomInt(1, 8);
         if (rand === 1) {
@@ -359,20 +419,31 @@ function submitText() {
         }
         game.time.events.add(Phaser.Timer.SECOND, fadeUi, this);
         wrongFX.play("", 0, 1);
-        textInput.setText("");
     }
+    textInput.setText("");
 }
 
 //Allow user to use backspace to delete their typed word
 function deleteText() {
-    textInput.text = textInput.text.substring(0, textInput.text.length - 1);
+    if(gameOverState) {
+        playerName.text = playerName.text.substring(0, playerName.text.length - 1);
+    } else {
+        textInput.text = textInput.text.substring(0, textInput.text.length - 1);
+    }
 }
 
 //Play the background music
 function playBackground() {
-    music = game.add.audio('theme');
-    music.autoplay = true;
-    music.play("", 0, 1, true);
+    var int = getRandomInt(0, 2);
+    if (int === 1) {
+        music = game.add.audio('theme');
+        music.autoplay = true;
+        music.play("", 0, 1, true);
+    } else {
+        music = game.add.audio('theme2');
+        music.autoplay = true;
+        music.play("", 0, 1, true);
+    }
 }
 
 //Make buttons function for the game
@@ -473,28 +544,25 @@ function isColliding(drop1, drop2) {
 }
 
 function gameOver() {
+    gameOverState = true;
     this.game.state.start('GameOver');
-    var yourScore;
-    yourScore = game.add.text(game.world.centerX, game.world.centerY, "Your score: " + score);
-    console.log('gameover');
-    sendScores();
 }
 
-// FIREBASE SEND
-
+// Parse SEND
 function sendScores() {
+    this.game.state.start('LeaderBoard');
     var player = new Player();
     player.set('score', score);
-    //player.set('name', playerName);
+    player.set('name', playerName.text);
     player.save();
     console.log("sending");
 }
 
-// FIRE BASEFETCH
 function displayError(err) {
     console.log(err);
 }
 
+// Parse fetch
 function fetchScores() {
     playerQuery.find().then(onData, displayError);
 }
@@ -504,13 +572,24 @@ function onData(result) {
     renderScores();
 }
 
-var style = { font: "32px Arial", fill: "#000000", wordWrap: true, align: "center" };
+var style = { font: "32px Arial", fill: "#000000", align: "center" };
 
 function renderScores() {
     var leaderboardText;
+    var noScores;
     for (var i = 0; i < 10; i++) {
-        //player[i].get('name') +
-        leaderboardText = game.add.text(game.world.centerX - 110, game.world.centerY - 220 + (45 * i), '..........' + players[i].get('score') , style);
+        if (players[0] == undefined) {
+            noScores = game.add.text(game.world.centerX, game.world.centerY, "There are no highscores!", {
+                font: '48px Arial',
+                fill: '#000',
+                align: 'center'
+            });
+            noScores.anchor.setTo(0.5, 0.5);
+        } else {
+            //player[i].get('name') +
+            leaderboardText = game.add.text(game.world.centerX, game.world.centerY - 220 + (45 * i), players[i].get('name') + '..........' + players[i].get('score') , style);
+            leaderboardText.anchor.setTo(0.5, 0.5);
+        }
     }
 }
 
