@@ -4,18 +4,20 @@ Parse.initialize("AZFr3gs8vJnsV8ZFqn4SbYTz4tStqSDdYpLR3VLL", "MCOZMomXavVVV27Rg5
 
 var game = new Phaser.Game(650, 700, Phaser.AUTO, '');
 
+//Create an object in Parse to store player names and scores, ordered from highest to lowest
 var Player = Parse.Object.extend('Player');
 var playerQuery = new Parse.Query(Player);
 playerQuery.descending('score');
 var players = [];
 
+//Various states for the game, loading, main menu, game over, leaderboard
 var states = {};
 states.Loading = function() {};
 states.MainMenu = function() {};
 states.GameOver = function() {};
 states.LeaderBoard = function() {};
 
-
+//Loading state
 states.Loading.prototype = {
     preload: function() {
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -68,7 +70,6 @@ states.Loading.prototype = {
         this.game.load.image('grass4',"assets/img/grass4dayz/wordcloudgrass6-01.png");
         this.game.load.image('grass5',"assets/img/grass4dayz/wordcloudgrass-01.png");
 
-
         loadingText = game.add.text(game.world.centerX, game.world.centerY, 'Loading...', {
             font: '32px Arial',
             fill: '#FFF'
@@ -87,19 +88,17 @@ states.Loading.prototype = {
         loadingText.setText("Loading: " + progress + "% - " + totalLoaded + " out of " + totalFiles);
     },
     loadComplete: function() {
-        //if (this.cache.isSoundDecoded('theme') && this.cache.isSoundDecoded('theme2')) {
-        //    this.game.state.start('MainMenu');
-        //}
         this.game.state.start('MainMenu');
     }
 };
 
+//Main Menu State
 states.MainMenu.prototype = {
     create: function() {
-        //background
+        //Add background to the game
         background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
         
-        //Game audio
+        //Add Game audio
         keyPressFX = game.add.audio('keyPress');
         buttonClickFX = game.add.audio('buttonClick');
         correctFX = game.add.audio('correct');
@@ -107,13 +106,13 @@ states.MainMenu.prototype = {
 
         buttonClickFX.addMarker('startButton', 0, 5);
         buttonClickFX.addMarker('leaderButton', 0, 5);
-        //buttonClickFX.addMarker('replay', 0, 5);
 
         //Start the game by clicking this button
         var startButton = this.game.add.button(game.world.centerX, game.world.centerY - 100, "start", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
+        //Go to leader boards by clicking this button
         var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 100, "leaderboard", this.LeaderBoard, this);
         leaderButton.anchor.setTo(0.5, 0.5);
         leaderButton.scale.set(0.2, 0.2);
@@ -121,8 +120,8 @@ states.MainMenu.prototype = {
         playBackground();
     },
     startGame: function() {
-            buttonClickFX.play('startButton', 0);
-            this.game.state.start('GameState');
+        buttonClickFX.play('startButton', 0);
+        this.game.state.start('GameState');
     },
     LeaderBoard: function() {
         buttonClickFX.play('startButton', 0);
@@ -130,16 +129,19 @@ states.MainMenu.prototype = {
     }
 };
 
+//Leaderboard State
 states.LeaderBoard.prototype = {
     create: function() {
         var leaderButton = this.game.add.button(game.world.centerX, game.world.centerY + 85, "leaderboard", this.LeaderBoard, this);
 
         background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
 
+        //hit this button to play the game again
         var startButton = this.game.add.button(game.world.centerX, game.world.centerY + 285, "playagain", this.startGame, this);
         startButton.anchor.setTo(0.5, 0.5);
         startButton.scale.set(0.2, 0.2);
 
+        //Retrieve the scoers from Parse.com
         fetchScores();
     },
     startGame: function() {
@@ -153,6 +155,7 @@ states.LeaderBoard.prototype = {
     }
 };
 
+//Game over state
 states.GameOver.prototype = {
     create: function() {
         background = game.add.tileSprite(0, 0, game.world.width, game.world.height, "background");
@@ -196,7 +199,6 @@ states.GameOver.prototype = {
         leaderBoard.anchor.setTo(0.5, 0.5);
         leaderBoard.scale.set(0.2, 0.2);
     },
-    //updates the game
     update: function() {
         game.debug.geom(textboxlinetop, '#000');
         game.debug.geom(textboxlinebottom, '#000');
@@ -204,7 +206,6 @@ states.GameOver.prototype = {
         game.debug.geom(textboxlineright, '#000');
 
         if (newHighScore && gameOverState) {
-            //Delete a letter from the word being typed.
             this.deleteKey.onDown.add(deleteText, this);
             this.enterKey.onDown.add(sendScores, this);
 
@@ -290,7 +291,6 @@ function create() {
     textInput.setText(textInput.text);
     textInput.anchor.setTo(0.5, 0.5);
 
-
     howToPlay = game.add.text(game.world.centerX, game.world.centerY, "Don't let the drops reach the bottom!", {
         font: '32px Arial',
         fill: '#000',
@@ -338,6 +338,7 @@ function update() {
     }
 }
 
+//Fade the text at the start of the game
 function fadeText() {
     function fade() {
         game.add.tween(startTyping).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
@@ -353,6 +354,7 @@ function fadeText() {
     game.time.events.add(Phaser.Timer.SECOND, fade, this);
 }
 
+//Fade the error and confirm messages
 function fadeUi() {
     game.add.tween(wrongWord).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None, true);
 }
@@ -545,6 +547,7 @@ Drop = function(game, char) {
     this.game.physics.arcade.enableBody(this);
 };
 
+//Changes the gameover state to true and launches the gameover state
 function gameOver() {
     gameOverState = true;
     this.game.state.start('GameOver');
