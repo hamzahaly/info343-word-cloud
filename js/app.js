@@ -175,7 +175,6 @@ states.GameOver.prototype = {
         yourScore = game.add.text(game.world.centerX, game.world.centerY - 50, "Your score: " + score);
         yourScore.anchor.setTo(0.5, 0.5);
         if (players[9] == undefined || score > players[9].get('score')) {
-            console.log(players[9]);
             newHighScore = true;
             var highScoreText;
             highScoreText = game.add.text(game.world.centerX, game.world.centerY - 10, 'You got a highscore!', {
@@ -573,7 +572,6 @@ function gameOver() {
 // Parse SEND
 function sendScores() {
     if (playerName.text != "") {
-        console.log("sending");
         this.game.state.start('LeaderBoard');
         var player = new Player();
         player.set('score', score);
