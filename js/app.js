@@ -24,15 +24,6 @@ states.Loading.prototype = {
         this.scale.maxWidth = 768;
         this.scale.maxHeight = 1152;
         game.scale.refresh();
-    },
-    create: function() {
-        game.stage.backgroundColor = '#000';
-        loadingText = game.add.text(game.world.centerX, game.world.centerY, 'Loading...', {
-            font: '32px Arial',
-            fill: '#FFF'
-        });
-        loadingText.anchor.setTo(0.5, 0.5);
-
         this.game.load.text('dictionary', 'assets/dictionary.txt');
         this.game.load.image('background', 'assets/img/background3.png');
         this.game.load.image('a', 'assets/img/drops/a.png');
@@ -77,20 +68,29 @@ states.Loading.prototype = {
         this.game.load.image('grass4',"assets/img/grass4dayz/wordcloudgrass6-01.png");
         this.game.load.image('grass5',"assets/img/grass4dayz/wordcloudgrass-01.png");
 
-        this.game.load.start();
 
-        this.game.load.onLoadStart.add(this.loadStart, this);
+        loadingText = game.add.text(game.world.centerX, game.world.centerY, 'Loading...', {
+            font: '32px Arial',
+            fill: '#FFF'
+        });
+        loadingText.anchor.setTo(0.5, 0.5);
+
+        this.game.load.start();
         this.game.load.onFileComplete.add(this.fileComplete, this);
+        this.game.load.onLoadComplete.add(this.loadComplete, this);
+
+    },
+    create: function() {
+        game.stage.backgroundColor = '#000';
     },
     fileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
-        loadingText.setText("File Complete: " + progress + "% - " + totalLoaded + " out of " + totalFiles);
+        loadingText.setText("Loading: " + progress + "% - " + totalLoaded + " out of " + totalFiles);
+    },
+    loadComplete: function() {
         //if (this.cache.isSoundDecoded('theme') && this.cache.isSoundDecoded('theme2')) {
-        //    this.game.state.start('MainMenu')
+        //    this.game.state.start('MainMenu');
         //}
         this.game.state.start('MainMenu');
-    },
-    loadStart: function() {
-        console.log('load start');
     }
 };
 
